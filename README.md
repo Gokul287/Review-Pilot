@@ -260,18 +260,32 @@ When running with `--save`, ReviewPilot generates three files:
 
 ---
 
+## 📖 Documentation
+
+Full modular docs in [`docs/`](docs/README.md):
+
+| Guide | What's Inside |
+|-------|--------------|
+| [Installation](docs/installation.md) | Prerequisites, 3 install methods, verify |
+| [Getting Started](docs/getting-started.md) | First analysis in 2 minutes |
+| [Commands](docs/commands.md) | CLI flags, options, examples |
+| [Configuration](docs/configuration.md) | `.reviewpilotrc` reference |
+| [Copilot Integration](docs/copilot-integration.md) | 8 AI integration points |
+| [Architecture](docs/architecture.md) | Pipeline, modules, data types |
+| [Troubleshooting](docs/troubleshooting.md) | Common issues & fixes |
+| [Contributing](docs/contributing.md) | Dev setup, testing, adding rules |
+
+---
+
 ## 🔧 Development
 
 ```bash
-# Run tests
-npm test
-
-# Watch mode
-npm run test:watch
-
-# Run directly
-node bin/reviewpilot.js check --no-copilot
+npm test              # Run all 48 tests
+npm run test:watch    # Watch mode
+node bin/reviewpilot.js check --no-copilot   # Run directly
 ```
+
+See [Contributing Guide](docs/contributing.md) for full dev setup.
 
 ---
 
@@ -282,3 +296,4 @@ MIT © 2024
 ---
 
 *Built for the GitHub Copilot CLI Challenge 🏆*
+
