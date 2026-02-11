@@ -1,5 +1,5 @@
 ### **ReviewPilot CLI** - AI-Native Code Review Companion
-**Category:** Problem Solver | **Complexity:** Medium | **Uniqueness Score:** 8/10
+**Category:** Problem Solver
 
 #### 🎪 THE HOOK
 Pre-review code analyzer that catches issues **before** human reviewers see them, reducing review cycles from 4-6 hours to 30 minutes. Uses Copilot CLI as cognitive assistant for context-aware analysis beyond static linters. [jellyfish](https://jellyfish.co/library/developer-productivity/pain-points/)
@@ -60,7 +60,7 @@ User runs: reviewpilot create-pr
 | **4** | Generation & UX | -  PR description generator<br>-  Checklist builder<br>-  CLI output formatting | Screenshot all interactions | 🟠 HIGH |
 | **5** | Integration & Demo | -  GitHub PR creation<br>-  Demo video with real codebase<br>-  Write submission post | Before/after metrics | 🔴 CRITICAL |
 
-#### 🏆 WINNING DIFFERENTIATORS
+#### DIFFERENTIATORS
 
 ✅ **Saves 4-6 hours per week** per developer [jellyfish](https://jellyfish.co/library/developer-productivity/pain-points/)
 ✅ **Beyond static analysis** - semantic understanding via Copilot  

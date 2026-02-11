@@ -18,11 +18,18 @@ import { askCopilot } from '../utils/copilot.js';
  * @property {string|null} aiSummary - Copilot-generated summary of the overall change
  */
 
-// File extension → semantic category mapping
+// File extension → semantic category mapping (order matters: test > docs > config)
 const CATEGORY_MAP = {
     test: ['.test.', '.spec.', '__tests__', '__mocks__'],
     docs: ['.md', '.txt', '.rst', 'docs/', 'README'],
-    config: ['.json', '.yaml', '.yml', '.toml', '.env', '.config.', 'rc', '.eslint', '.prettier'],
+    config: [
+        'package.json', 'tsconfig.json', '.eslintrc', '.prettierrc',
+        '.yaml', '.yml', '.toml', '.env',
+        '.config.js', '.config.ts', '.config.mjs',
+        'webpack.config', 'vite.config', 'jest.config', 'vitest.config',
+        '.babelrc', '.editorconfig', '.gitignore', '.npmrc',
+        'Dockerfile', 'docker-compose', 'Makefile',
+    ],
 };
 
 /**
@@ -91,12 +98,15 @@ function resolveChangeType(file) {
 
 function categorizeFile(filePath) {
     const lower = filePath.toLowerCase();
+    const fileName = lower.split('/').pop();
 
+    // Priority order: test > docs > config > feature
     for (const [category, patterns] of Object.entries(CATEGORY_MAP)) {
-        if (patterns.some((p) => lower.includes(p))) return category;
+        if (patterns.some((p) => lower.includes(p) || fileName.includes(p))) return category;
     }
 
-    // Heuristic: if it's in src/ or lib/ but not config/test, it's a feature or refactor
-    if (lower.includes('src/') || lower.includes('lib/')) return 'feature';
+    // Source files are features by default
+    if (lower.includes('src/') || lower.includes('lib/') || lower.includes('app/')) return 'feature';
+    if (/\.(js|ts|jsx|tsx|mjs)$/.test(lower)) return 'feature';
     return 'feature';
 }

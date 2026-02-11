@@ -1,0 +1,7 @@
+{
+  "baseBranch": "main",
+  "excludePatterns": ["*.lock", "*.min.js", "*.min.css", "node_modules/**", "dist/**"],
+  "copilotTimeout": 30000,
+  "outputDir": ".reviewpilot-output",
+  "maxFileSizeKB": 500
+}
