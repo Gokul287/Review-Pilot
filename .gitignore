@@ -5,4 +5,4 @@ coverage/
 dist/
 *.log
 .DS_Store
-verifiable_proof.md
+proof/

@@ -17,7 +17,7 @@ import { isCopilotAvailable, getCopilotStats } from '../utils/copilot.js';
 import { processDiff } from '../analyzers/diff-processor.js';
 import { gatherContext } from '../context/context-collector.js';
 import { analyze } from '../linters/smart-linter.js';
-import { checkTestCoverage } from '../validators/test-checker.js';
+import { validateTestCoverage } from '../validators/test-checker.js';
 import { checkPerformanceBudget } from '../validators/performance-budget.js';
 import { detectBreakingChanges } from '../detectors/breaking-changes.js';
 import { generatePRDescription } from '../generators/pr-description.js';
@@ -114,7 +114,7 @@ export async function checkCommand(options) {
         const { files, summary, aiSummary } = results.diffAnalysis;
 
         // Show file summary
-        log.info(`Files: ${summary.total} changed (${summary.additions} additions, ${summary.deletions} deletions)`);
+        log.info(`Files: ${summary.fileCount} changed (${summary.additions} additions, ${summary.deletions} deletions)`);
         log.newline();
 
         // ──────────────────────────────────────────────────────
@@ -156,7 +156,7 @@ export async function checkCommand(options) {
         log.stepProgress(5, TOTAL_STEPS, 'Checking test coverage');
         tracker.startStep('Test Coverage');
         try {
-            results.testCoverage = await checkTestCoverage(files);
+            results.testCoverage = await validateTestCoverage(files, process.cwd());
             log.succeedSpinner('Test coverage checked');
         } catch (err) {
             results.errors.push({ step: 'Test Coverage', error: err.message });
@@ -204,12 +204,11 @@ export async function checkCommand(options) {
         tracker.startStep('PR Description');
         try {
             results.prDescription = await generatePRDescription({
-                files,
-                summary,
-                aiSummary,
+                diffAnalysis: results.diffAnalysis,
                 findings: results.findings,
-                testCoverage: results.testCoverage,
+                testCoverage: results.testCoverage || { untestedFiles: [], existingTests: [], suggestions: [] },
                 breakingChanges: results.breakingChanges,
+                branchName: baseBranch,
             });
             log.succeedSpinner('PR description generated');
         } catch (err) {
@@ -226,7 +225,7 @@ export async function checkCommand(options) {
         tracker.startStep('Review Checklist');
         try {
             results.checklist = await buildChecklist({
-                files,
+                diffAnalysis: results.diffAnalysis,
                 findings: results.findings,
                 breakingChanges: results.breakingChanges,
             });
@@ -248,7 +247,7 @@ export async function checkCommand(options) {
         if (results.findings.length > 0) {
             log.heading('Findings');
             for (const f of results.findings) {
-                log.finding(f);
+                log.finding(f.severity, f.file, f.line, f.message, f.source);
             }
         } else {
             log.success('No issues found — looking clean! 🎉');
@@ -259,7 +258,7 @@ export async function checkCommand(options) {
             log.newline();
             log.heading('Performance Budget Violations');
             for (const v of results.budgetViolations) {
-                log.warning(`${v.file}: ${v.message}`);
+                log.warn(`${v.file}: ${v.message}`);
             }
         }
 
@@ -268,7 +267,7 @@ export async function checkCommand(options) {
             log.newline();
             log.heading('Breaking Changes');
             for (const bc of results.breakingChanges) {
-                log.warning(`${bc.file}: ${bc.type} — ${bc.change}`);
+                log.warn(`${bc.file}: ${bc.functionName} — ${bc.description}`);
             }
         }
 
@@ -291,7 +290,7 @@ export async function checkCommand(options) {
             log.newline();
             log.heading('Step Failures');
             for (const e of results.errors) {
-                log.warning(`${e.step}: ${e.error}`);
+                log.warn(`${e.step}: ${e.error}`);
             }
         }
 
