@@ -12,6 +12,7 @@ Welcome to the ReviewPilot docs. Pick a section below.
 | [Architecture](architecture.md) | Pipeline design, modules, data flow |
 | [Plugins](plugins.md) | Custom rule authoring guide |
 | [Benchmarks](benchmarks.md) | Performance data and optimization |
+| [Comparison](comparison.md) | Competitor analysis and cost breakdown |
 | [Troubleshooting](troubleshooting.md) | Common issues and fixes |
 | [Contributing](contributing.md) | Dev setup, testing, project structure |
 

@@ -63,6 +63,19 @@ npm link
 
 > **Note**: ReviewPilot works without Copilot CLI — it runs heuristic, AST, entropy, and ML analysis. **Copilot adds semantic understanding on top.**
 
+### 🎬 See It In Action
+
+```bash
+# Try it on our benchmark repository (7 intentional issues)
+cd examples/benchmark-repo
+chmod +x setup.sh && ./setup.sh
+reviewpilot check --save --verbose
+
+# Expected: 7 findings in <15s
+```
+
+See [examples/benchmark-repo/](examples/benchmark-repo/) for details and [RESULTS.md](examples/benchmark-repo/RESULTS.md) for expected output.
+
 ---
 
 ## 🚀 Usage
@@ -286,7 +299,26 @@ This workflow:
 - Fails the check if critical issues are found
 - Updates existing comments on re-runs (no spam)
 
-See [`.github/workflows/reviewpilot.yml`](.github/workflows/reviewpilot.yml) for the full workflow.
+See [`.github/workflows/reviewpilot.yml`](.github/workflows/reviewpilot.yml) for the full workflow.  
+See [examples/ci-integration/](examples/ci-integration/) for GitLab, Jenkins, and Azure DevOps examples.
+
+---
+
+## 🆚 Why ReviewPilot?
+
+| Feature | ReviewPilot | Danger.js | CodeRabbit | SonarQube | ESLint |
+|---------|------------|-----------|------------|-----------|--------|
+| **Local execution** | ✅ | ❌ CI-only | ❌ Cloud | ⚠️ Server | ✅ |
+| **AI-powered** | ✅ Copilot | ❌ | ✅ Proprietary | ❌ | ❌ |
+| **Offline mode** | ✅ | ❌ | ❌ | ✅ | ✅ |
+| **Auto-fix** | ✅ Interactive | ❌ | ⚠️ | ❌ | ⚠️ |
+| **Entropy secrets** | ✅ Shannon | ❌ | ❌ | ⚠️ | ❌ |
+| **Breaking changes** | ✅ | ❌ | ⚠️ | ❌ | ❌ |
+| **ML false-positive filter** | ✅ | ❌ | ✅ | ❌ | ❌ |
+| **Cost** | **Free** | Free + CI | $49/mo | $150+/mo | Free |
+| **Setup** | **2 min** | 30 min | 10 min | Hours | 5 min |
+
+See [docs/comparison.md](docs/comparison.md) for detailed analysis with cost breakdown and real-world scenarios.
 
 ---
 
@@ -304,6 +336,7 @@ Full modular docs in [`docs/`](docs/README.md):
 | [Architecture](docs/architecture.md) | Pipeline, modules, data types |
 | [Plugins](docs/plugins.md) | Custom rule authoring guide |
 | [Benchmarks](docs/benchmarks.md) | Performance data and optimization |
+| [Comparison](docs/comparison.md) | Competitor analysis and cost breakdown |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues & fixes |
 | [Contributing](docs/contributing.md) | Dev setup, testing, project structure |
 
@@ -327,5 +360,12 @@ See [Contributing Guide](docs/contributing.md) for the full test structure.
 MIT © 2024
 
 ---
+
+## 🏆 Competition Stats
+
+- **8-layer analysis** — beyond what any single tool provides
+- **138 tests** across 13 suites
+- **2-minute setup** — clone, install, run
+- **Free** — uses your existing Copilot license
 
 *Built for the GitHub Copilot CLI Challenge 🏆*

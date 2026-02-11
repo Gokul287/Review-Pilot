@@ -1,0 +1,12 @@
+{
+  "baseBranch": "main",
+  "excludePatterns": ["*.lock", "node_modules/**"],
+  "copilotTimeout": 30000,
+  "outputDir": ".reviewpilot-output",
+  "maxFileSizeKB": 500,
+  "performanceBudgets": {
+    "maxFileSize": 512000,
+    "maxFunctionLength": 50,
+    "maxCyclomaticComplexity": 10
+  }
+}
