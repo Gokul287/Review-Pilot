@@ -88,6 +88,48 @@ export function newline() {
     console.log();
 }
 
+// ─── Step Progress ───────────────────────────────────────────
+
+/**
+ * Shows pipeline step progress indicator.
+ * @param {number} current - Current step (1-indexed)
+ * @param {number} total   - Total steps
+ * @param {string} name    - Step name
+ */
+export function stepProgress(current, total, name) {
+    const progress = chalk.bold.cyan(`[${current}/${total}]`);
+    startSpinner(`${progress} ${name}...`);
+}
+
+/**
+ * Renders performance metrics summary.
+ * @param {string} formattedSummary - Pre-formatted summary string from PerformanceTracker
+ */
+export function perfSummary(formattedSummary) {
+    console.log();
+    for (const line of formattedSummary.split('\n')) {
+        if (line.includes('Bottleneck')) {
+            console.log(chalk.yellow(`  ${line}`));
+        } else if (line.startsWith('⚡')) {
+            console.log(chalk.bold.cyan(`  ${line}`));
+        } else if (line.startsWith('─')) {
+            console.log(chalk.dim(`  ${line}`));
+        } else {
+            console.log(chalk.dim(`  ${line}`));
+        }
+    }
+}
+
+/**
+ * Shows a warning for a failed pipeline step.
+ * @param {string} step  - Step name
+ * @param {string} error - Error message
+ */
+export function partialResult(step, error) {
+    console.log(chalk.yellow(`  ⚠ ${step} failed: ${error}`));
+    console.log(chalk.dim(`    Continuing with remaining steps...`));
+}
+
 // ─── Banner ──────────────────────────────────────────────────
 
 export function banner() {

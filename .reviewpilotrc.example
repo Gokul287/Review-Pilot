@@ -1,7 +1,17 @@
 {
-  "baseBranch": "main",
-  "excludePatterns": ["*.lock", "*.min.js", "*.min.css", "node_modules/**", "dist/**"],
-  "copilotTimeout": 30000,
-  "outputDir": ".reviewpilot-output",
-  "maxFileSizeKB": 500
+    "baseBranch": "main",
+    "excludePatterns": ["*.lock", "*.min.js", "dist/**"],
+    "copilotTimeout": 30000,
+    "outputDir": ".reviewpilot-output",
+    "maxFileSizeKB": 500,
+    "telemetry": true,
+    "performanceBudgets": {
+        "maxFileSize": 512000,
+        "maxFunctionLength": 50,
+        "maxCyclomaticComplexity": 10,
+        "maxImportDepth": 5
+    },
+    "retryAttempts": 3,
+    "copilotConcurrency": 3,
+    "pluginDir": ".reviewpilot-rules"
 }

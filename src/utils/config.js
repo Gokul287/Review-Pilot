@@ -8,6 +8,16 @@ const DEFAULTS = {
     copilotTimeout: 30000,
     outputDir: '.reviewpilot-output',
     maxFileSizeKB: 500,
+    telemetry: true,
+    performanceBudgets: {
+        maxFileSize: 500 * 1024,        // 500KB
+        maxFunctionLength: 50,           // lines
+        maxCyclomaticComplexity: 10,     // McCabe
+        maxImportDepth: 5,               // dependency depth
+    },
+    retryAttempts: 3,
+    copilotConcurrency: 3,
+    pluginDir: '.reviewpilot-rules',
 };
 
 /**

@@ -55,7 +55,7 @@ describe('copilot', () => {
                 cb(err, '', '');
             });
 
-            const result = await askCopilot('Test prompt', { timeout: 1000 });
+            const result = await askCopilot('Test prompt', { timeout: 1000, retries: 0 });
             expect(result).toBeNull();
         });
 
@@ -79,7 +79,7 @@ describe('copilot', () => {
                 cb(new Error('unexpected error'), '', 'stderr');
             });
 
-            const result = await askCopilot('Test prompt');
+            const result = await askCopilot('Test prompt', { retries: 0 });
             expect(result).toBeNull();
         });
     });

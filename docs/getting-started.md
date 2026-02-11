@@ -28,26 +28,40 @@ ReviewPilot will:
 
 1. Detect your branch and diff it against `main`
 2. Parse all changed files
-3. Run 10 heuristic rules (console.log, secrets, eval, etc.)
+3. Run 8-layer analysis (heuristic + entropy + AST + plugins + ML + Copilot)
 4. Check test coverage gaps
-5. Detect breaking API changes
-6. Display a formatted report
+5. Enforce performance budgets (file size, complexity)
+6. Detect breaking API changes
+7. Display a formatted report with step timing
 
 ## 4. Save Results
 
 ```bash
-reviewpilot check --save
+reviewpilot check --save --verbose
 ```
 
-This writes three files to `.reviewpilot-output/`:
+This writes to `.reviewpilot-output/`:
 
 | File | Use |
 |------|-----|
 | `pr-description.md` | Copy-paste into your PR |
 | `checklist.md` | Review checklist for reviewers |
-| `analysis.json` | Raw data for tooling/CI |
+| `analysis.json` | Raw data for tooling/CI/auto-fix |
 
-## 5. Create a PR (Optional)
+## 5. Auto-Fix Issues (Optional)
+
+```bash
+# Preview fixes
+reviewpilot fix --dry-run
+
+# Apply all fixes
+reviewpilot fix --all
+
+# Interactive — approve each fix
+reviewpilot fix --interactive
+```
+
+## 6. Create a PR (Optional)
 
 ```bash
 reviewpilot create-pr
@@ -62,23 +76,26 @@ Opens a GitHub PR with the generated description and checklist attached.
   ║   🛩️  ReviewPilot — AI Code Review   ║
   ╚══════════════════════════════════════╝
 
-  ℹ Branch: feature/my-change → main
+  ℹ Base branch: main
 
-  ✔ Parsed 2 files (+45/-12)
+  [1/9] Getting diff ✔
+  [2/9] Processing diff ✔ Processed 2 file(s)
+  [3/9] Gathering context ✔
+  [4/9] Smart Linting ✔ 3 finding(s)
+  [5/9] Checking test coverage ✔
+  [6/9] Checking performance budgets ✔
+  [7/9] Detecting breaking changes ✔
+  [8/9] Generating PR description ✔
+  [9/9] Building review checklist ✔
 
   ✦ Findings
   ──────────────────────────────────────
-   CRITICAL  src/auth.js:47  Potential hardcoded secret
+   CRITICAL  src/auth.js:47   Potential hardcoded secret
    WARNING   src/utils.js:12  Leftover console statement
+   INFO      src/api.js:5     TODO comment found
 
-  ✦ ReviewPilot Summary
-  ──────────────────────────────────────
-  • Files changed: 2
-  • Issues: 1 critical/error, 1 warnings
-  • Test coverage gaps: 1
-  • Breaking changes: 0
-
-  ⚠ ⚡ Some warnings — review recommended before merging.
+  ✦ Performance Metrics
+   Total: 2.1s | Memory: 65MB RSS
 ```
 
 ---

@@ -39,38 +39,24 @@ npx reviewpilot check
 
 ## Install Copilot CLI (Optional)
 
-Copilot CLI adds AI-powered semantic analysis on top of the built-in heuristic rules.
+Copilot CLI adds AI-powered semantic analysis on top of the built-in 7-layer analysis (heuristic + entropy + AST + plugins + ML + budgets + .env scanning).
 
 ```bash
 npm install -g @github/copilot
-```
-
-Verify:
-
-```bash
 copilot --version
 ```
 
-> **Without Copilot CLI**: ReviewPilot still works — it runs heuristic-only analysis and shows a warning. No features are disabled, you just don't get AI suggestions.
+> **Without Copilot CLI**: ReviewPilot still runs full multi-dimensional analysis. You just don't get AI semantic suggestions and test scaffolding.
 
 ## Install GitHub CLI (Optional)
 
 Only needed for `reviewpilot create-pr`:
 
 ```bash
-# macOS
-brew install gh
+brew install gh       # macOS
+winget install GitHub.cli  # Windows
+sudo apt install gh   # Linux
 
-# Windows
-winget install GitHub.cli
-
-# Linux
-sudo apt install gh
-```
-
-Authenticate:
-
-```bash
 gh auth login
 ```
 
@@ -93,6 +79,7 @@ Options:
 
 Commands:
   check           Analyze current changes for issues, test coverage, and breaking changes
+  fix             Auto-fix issues found by reviewpilot check
   create-pr       Create a GitHub PR using generated description and checklist
   help [command]  display help for command
 ```

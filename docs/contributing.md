@@ -22,7 +22,7 @@ reviewpilot check
 ## Tests
 
 ```bash
-# Run all tests
+# Run all 138 tests
 npm test
 
 # Watch mode (re-runs on file change)
@@ -34,15 +34,26 @@ npm run test:watch
 ```
 tests/
 ├── analyzers/
-│   └── diff-processor.test.js    ← Diff parsing, file categorization
+│   ├── diff-processor.test.js    ← Diff parsing, file categorization
+│   └── ast-analyzer.test.js      ← AST detection, complexity calculation    ★ NEW
 ├── linters/
-│   └── smart-linter.test.js      ← 10 heuristic rules, edge cases
+│   ├── smart-linter.test.js      ← Heuristic rules, edge cases
+│   └── plugin-loader.test.js     ← Plugin loading, validation, execution   ★ NEW
+├── fixers/
+│   └── auto-fix.test.js          ← Fix generation, patching, application   ★ NEW
+├── validators/
+│   └── performance-budget.test.js ← Budget checks, thresholds              ★ NEW
 ├── detectors/
 │   └── breaking-changes.test.js  ← Signature comparison (mocked git)
 ├── generators/
 │   └── checklist.test.js         ← Contextual checklist generation
+├── ml/
+│   └── false-positive-filter.test.js ← ML classifier, learning          ★ NEW
 └── utils/
-    └── copilot.test.js           ← Fallback handling (mocked child_process)
+    ├── copilot.test.js           ← Retry, fallback (mocked child_process)
+    ├── entropy.test.js           ← Shannon entropy, secret detection      ★ NEW
+    ├── metrics.test.js           ← Performance tracking                   ★ NEW
+    └── telemetry.test.js         ← Opt-in/out, env vars                   ★ NEW
 ```
 
 Tests mock `copilot.js` and `git.js` — no real Git or Copilot calls during testing.
@@ -64,28 +75,35 @@ Then add a test in `tests/linters/smart-linter.test.js`:
 ```js
 it('should detect your new pattern', async () => {
   const files = [mockFile('app.js', ['code that matches your pattern'])];
-  const findings = await analyze(files);
+  const findings = await analyze(files, { useML: false });
   expect(findings.some((f) => f.message.includes('your description'))).toBe(true);
 });
 ```
 
-## Adding a New Checklist Category
+> **Note**: Pass `{ useML: false }` in tests to prevent the ML filter from affecting assertions.
 
-Edit `src/generators/checklist.js`:
+## Creating a Plugin
+
+Instead of modifying `smart-linter.js`, you can create a plugin. See [Plugin Authoring Guide](plugins.md).
+
+## Adding an Auto-Fix
+
+Edit `src/fixers/auto-fix.js` — add a new generator to the `FIX_GENERATORS` map:
 
 ```js
-const CHECKLIST_TEMPLATES = {
-  // Add your category:
-  performance: [
-    'Load tested with expected traffic volume',
-    'No N+1 queries introduced',
-    'Caching strategy considered',
-  ],
-  // ... existing categories
+const FIX_GENERATORS = {
+  // Add your fix:
+  'your-pattern': (finding, lines, repoRoot) => ({
+    type: 'replace',
+    file: finding.file,
+    line: finding.line,
+    original: lines[finding.line - 1],
+    replacement: 'fixed version',
+    rule: 'your-pattern',
+    description: 'What this fix does',
+  }),
 };
 ```
-
-Detection logic is in `buildChecklist()` — add a condition to auto-detect when the category applies.
 
 ## Project Conventions
 
@@ -96,6 +114,7 @@ Detection logic is in `buildChecklist()` — add a condition to auto-detect when
 | **Types** | JSDoc `@typedef` for data shapes |
 | **Errors** | Catch and log, never crash the pipeline |
 | **AI calls** | Always via `askCopilot()`, never direct `execFile` |
+| **Tests** | Pass `{ useML: false }` for deterministic assertions |
 
 ## Commit Messages
 

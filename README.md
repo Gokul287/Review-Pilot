@@ -1,28 +1,43 @@
 # 🛩️ ReviewPilot — AI-Native Code Review Companion
 
 > Pre-review code analyzer that catches issues **before** human reviewers see them.  
-> Reduces review cycles from **4-6 hours to 30 minutes** using GitHub Copilot CLI for context-aware semantic analysis.
+> Reduces review cycles from **4-6 hours to 30 minutes** using multi-dimensional analysis with AST, ML, entropy-based secret detection, and GitHub Copilot CLI.
 
 [![Node.js](https://img.shields.io/badge/Node.js-≥18-green.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Copilot CLI](https://img.shields.io/badge/Copilot_CLI-Powered-blueviolet.svg)](https://docs.github.com/en/copilot)
+[![Tests](https://img.shields.io/badge/Tests-138_passing-brightgreen.svg)](#)
 
 ---
 
 ## 🎯 What It Does
 
-ReviewPilot runs an **8-step analysis pipeline** on your code changes:
+ReviewPilot runs a **9-step analysis pipeline** on your code changes with **8 analysis dimensions**:
 
-| Step | What It Checks | Copilot CLI Integration |
-|------|---------------|------------------------|
-| 1. **Diff Analysis** | Parses changes, categorizes files | "Analyze git diff and explain impact" |
-| 2. **Context Gathering** | Finds dependents, related tests | "Find all files that depend on these changes" |
-| 3. **Smart Linting** | 10 heuristic rules + semantic analysis | "Check for logic errors, race conditions, edge cases" |
-| 4. **Test Coverage** | Identifies untested code paths | "Suggest test cases for new logic" |
-| 5. **Breaking Changes** | Compares exported API signatures | "Compare function signatures with previous version" |
-| 6. **PR Description** | Generates structured markdown | "Write a clear PR description with context" |
-| 7. **Review Checklist** | Context-aware checklist (9 categories) | "Create checklist based on change type" |
-| 8. **PR Creation** | Opens PR via GitHub CLI | "Open PR with generated assets" |
+| Step | What It Checks | Powered By |
+|------|---------------|------------|
+| 1. **Diff Analysis** | Parses changes, categorizes files | Git + parse-diff |
+| 2. **Context Gathering** | Finds dependents, related tests | Import scanning + Copilot |
+| 3. **Smart Linting** | 8-layer multi-dimensional analysis | See below |
+| 4. **Test Coverage** | Identifies untested code paths | Heuristic + Copilot |
+| 5. **Performance Budgets** | File size, complexity, function length | AST analysis |
+| 6. **Breaking Changes** | Compares exported API signatures | Signature diff |
+| 7. **PR Description** | Generates structured markdown | Copilot |
+| 8. **Review Checklist** | Context-aware checklist (9 categories) | Template + Copilot |
+| 9. **Auto-Fix** | Fix issues automatically | Built-in + Copilot |
+
+### 8-Layer Smart Linting
+
+| Layer | What It Catches | Technology |
+|-------|----------------|------------|
+| **Heuristic Rules** | console.log, debugger, eval, @ts-ignore | Regex patterns |
+| **Entropy Detection** | Hardcoded secrets, API keys, tokens | Shannon entropy |
+| **AST Analysis** | Console outside conditionals, XSS, empty catches | Babel parser |
+| **.env Scanning** | Secrets in environment files | Pattern matching |
+| **Performance Budgets** | Oversize files, complex functions | AST + metrics |
+| **Plugin Rules** | Custom team rules | `.reviewpilot-rules/` |
+| **ML Filtering** | False positive reduction | Naive Bayes classifier |
+| **Copilot Semantic** | Logic errors, race conditions, edge cases | GitHub Copilot CLI |
 
 ---
 
@@ -31,7 +46,7 @@ ReviewPilot runs an **8-step analysis pipeline** on your code changes:
 ### Prerequisites
 
 - **Node.js ≥ 18** — [Install](https://nodejs.org/)
-- **GitHub Copilot CLI** — [Install](https://docs.github.com/en/copilot) *(optional but recommended)*
+- **GitHub Copilot CLI** — [Install](https://docs.github.com/en/copilot) *(recommended)*
 - **GitHub CLI (`gh`)** — [Install](https://cli.github.com/) *(for PR creation only)*
 
 ### Install
@@ -46,17 +61,7 @@ npm install
 npm link
 ```
 
-### Copilot CLI Setup
-
-```bash
-# Install Copilot CLI globally
-npm install -g @github/copilot
-
-# Verify it works
-copilot --version
-```
-
-> **Note**: ReviewPilot works without Copilot CLI — it just runs heuristic-only analysis with a warning. With Copilot, you get AI-powered semantic analysis on top.
+> **Note**: ReviewPilot works without Copilot CLI — it runs heuristic, AST, entropy, and ML analysis. **Copilot adds semantic understanding on top.**
 
 ---
 
@@ -68,27 +73,42 @@ copilot --version
 # Basic check (auto-detects base branch)
 reviewpilot check
 
-# Save results to disk for PR creation later
-reviewpilot check --save
+# Full analysis with performance metrics
+reviewpilot check --verbose --save
 
-# Custom base branch
-reviewpilot check -b develop --save
+# Custom base branch, no Copilot, no telemetry
+reviewpilot check -b develop --no-copilot --no-telemetry
 
-# Heuristics only — skip Copilot analysis
+# Heuristics only — fastest mode
 reviewpilot check --no-copilot
 ```
+
+### `reviewpilot fix` — Auto-Fix Issues ✨ NEW
+
+```bash
+# Preview all available fixes (dry run)
+reviewpilot fix --dry-run
+
+# Fix all auto-fixable issues
+reviewpilot fix --all
+
+# Interactive mode — approve each fix
+reviewpilot fix --interactive
+
+# Fix a specific issue by ID
+reviewpilot fix --issue 3
+```
+
+> Run `reviewpilot check --save` first — the fix command reads from `analysis.json`.
 
 ### `reviewpilot create-pr` — Open a GitHub PR
 
 ```bash
-# Create PR using saved analysis (run `check --save` first)
+# Create PR using saved analysis
 reviewpilot create-pr
 
 # Draft PR with custom title
 reviewpilot create-pr --draft --title "feat: add user authentication"
-
-# Custom target branch
-reviewpilot create-pr -b develop
 ```
 
 ### Example Output
@@ -98,165 +118,175 @@ reviewpilot create-pr -b develop
   ║   🛩️  ReviewPilot — AI Code Review   ║
   ╚══════════════════════════════════════╝
 
-  ℹ Branch: feature/auth → main
-  ✔ Copilot CLI detected — AI-enhanced analysis enabled
+  ℹ Base branch: main
+  ✔ Copilot CLI detected — AI analysis enabled
 
-  ✔ Parsed 3 files (+142/-38)
-
-  ✦ Changes Detected
-  ──────────────────────────────────────────────────────
-  • ✏️  src/auth/login.js  [feature]  +89/-12
-  • 🆕 src/auth/oauth.js   [feature]  +53/-0
-  • ✏️  tests/auth.test.js  [test]     +26/-0
-
-  ✔ Context gathered (2 dependency chains, 1 related tests)
-  ✔ Analysis complete — 4 finding(s)
+  [1/9] Getting diff ✔
+  [2/9] Processing diff ✔ Processed 5 file(s)
+  [3/9] Gathering context ✔
+  [4/9] Smart Linting ✔ 6 finding(s)
+  [5/9] Checking test coverage ✔
+  [6/9] Checking performance budgets ✔ 1 budget violation(s)
+  [7/9] Detecting breaking changes ✔ 0 breaking change(s)
+  [8/9] Generating PR description ✔
+  [9/9] Building review checklist ✔
 
   ✦ Findings
   ──────────────────────────────────────────────────────
-   CRITICAL  src/auth/login.js:47  Potential hardcoded secret [heuristic]
-   ERROR     src/auth/login.js:23  Use of eval() — security risk [heuristic]
-   WARNING   src/auth/oauth.js:15  Leftover console statement [heuristic]
-   SUGGESTION src/auth/login.js:30  Consider null check for user.token [copilot]
+   CRITICAL  src/auth/login.js:47  [entropy] API key with known prefix (confidence: high)
+   ERROR     src/auth/login.js:23  [ast] Use of eval() — security risk
+   WARNING   src/auth/oauth.js:15  [heuristic] Leftover console statement
+   WARNING   src/utils.js:89      [budget] Function exceeds 50-line limit
+   INFO      src/api.js:12        [plugin:no-axios] Prefer fetch API over axios
 
-  ✔ 1 file(s) missing tests
-  ✔ No breaking changes detected ✅
+  ✦ Performance Budgets
+   ⚠ src/monolith.js: File size (612KB) exceeds budget (500KB)
 
-  ═══════════════════════════════════════════════════════
-
-  ✦ ReviewPilot Summary
-  ──────────────────────────────────────────────────────
-  • Files changed: 3
-  • Issues: 2 critical/error, 1 warnings
-  • Test coverage gaps: 1
-  • Breaking changes: 0
-
-  ⚠ ⚡ Some warnings — review recommended before merging.
+  ✦ Performance Metrics
+   Total: 4.2s | Bottleneck: Smart Linting (1.8s, 43%)
+   Memory: 87MB RSS | Copilot: 4 calls, 2 cache hits, 0 failures
 ```
 
 ---
 
-## 🧠 8 Copilot CLI Integration Points
+## 🔌 Plugin System
 
-ReviewPilot uses Copilot CLI in **programmatic mode** (`copilot -p "prompt"`) at 8 integration points:
+Create custom linting rules for your team. Drop `.js` files into `.reviewpilot-rules/`:
 
-| # | When | Prompt Sent to Copilot |
-|---|------|------------------------|
-| 1 | **Diff Analysis** | "Analyze this set of code changes and provide a brief impact summary" |
-| 2 | **Context Collection** | "Find all files that depend on or import these changed files" |
-| 3 | **Smart Linting** | "Review this code change for logic errors, race conditions, null/undefined risks" |
-| 4 | **Test Suggestions** | "Suggest 3-5 test cases for the following new code, including edge cases" |
-| 5 | **Breaking Changes** | "Explain the impact on consumers and suggest migration steps" |
-| 6 | **PR Description** | "Write a concise, professional PR description for these changes" |
-| 7 | **Review Checklist** | "Create 3-5 specific review checklist items focusing on integration risks" |
-| 8 | **PR Creation** | Generates PR via `gh pr create` with all Copilot-generated content |
+```javascript
+// .reviewpilot-rules/no-axios.js
+export default {
+  name: 'no-axios',
+  severity: 'info',
+  description: 'Prefer native fetch over axios',
+  async analyze(filename, content) {
+    const findings = [];
+    content.split('\n').forEach((line, i) => {
+      if (/import.*axios|require\(.*axios/.test(line)) {
+        findings.push({ line: i + 1, message: 'Prefer fetch API over axios' });
+      }
+    });
+    return findings;
+  },
+};
+```
 
-Each integration point has a **graceful fallback** — if Copilot CLI is unavailable or times out, the tool continues using static heuristics only.
+See the [Plugin Authoring Guide](docs/plugins.md) for details.
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-bin/reviewpilot.js              ← CLI entry (Commander.js, shebang)
+bin/reviewpilot.js              ← CLI entry (Commander.js)
 src/
 ├── commands/
-│   ├── check.js                 ← 8-step analysis pipeline orchestrator
+│   ├── check.js                 ← 9-step pipeline orchestrator
+│   ├── fix.js                   ← Auto-fix command          ★ NEW
 │   └── create-pr.js             ← PR creation via `gh` CLI
 ├── analyzers/
-│   └── diff-processor.js        ← parse-diff + file categorization
+│   ├── diff-processor.js        ← parse-diff + file categorization
+│   └── ast-analyzer.js          ← Babel AST analysis        ★ NEW
 ├── context/
-│   └── context-collector.js     ← Import scanning + test file discovery
+│   └── context-collector.js     ← Import scanning + test discovery
 ├── linters/
-│   └── smart-linter.js          ← 10 heuristic rules + Copilot analysis
+│   ├── smart-linter.js          ← 8-layer multi-dimensional analysis
+│   └── plugin-loader.js         ← External plugin system    ★ NEW
 ├── validators/
-│   └── test-checker.js          ← Test coverage validation
+│   ├── test-checker.js          ← Test coverage validation
+│   └── performance-budget.js    ← Budget enforcement        ★ NEW
+├── fixers/
+│   └── auto-fix.js              ← Fix generation engine     ★ NEW
 ├── detectors/
 │   └── breaking-changes.js      ← Export signature comparison
 ├── generators/
-│   ├── pr-description.js        ← Structured PR markdown generation
-│   └── checklist.js             ← 9-category contextual checklist
+│   ├── pr-description.js        ← Structured PR markdown
+│   └── checklist.js             ← 9-category checklist
+├── ml/
+│   └── false-positive-filter.js ← Naive Bayes classifier    ★ NEW
 └── utils/
-    ├── copilot.js               ← Copilot CLI wrapper (graceful fallback)
-    ├── git.js                   ← simple-git convenience wrappers
-    ├── logger.js                ← chalk + ora formatted output
-    └── config.js                ← .reviewpilotrc loader
-```
-
-### Data Flow
-
-```
-reviewpilot check
-  │
-  ├──→ git.getDiff()
-  ├──→ diff-processor.processDiff()        ← Copilot: impact summary
-  ├──→ context-collector.gatherContext()    ← Copilot: dependency analysis
-  ├──→ smart-linter.analyze()              ← Copilot: semantic code review
-  ├──→ test-checker.validateTestCoverage() ← Copilot: test suggestions
-  ├──→ breaking-changes.detect()           ← Copilot: migration guidance
-  ├──→ pr-description.generate()           ← Copilot: PR summary
-  ├──→ checklist.build()                   ← Copilot: contextual checks
-  │
-  └──→ Display Results + Save to .reviewpilot-output/
+    ├── copilot.js               ← Retry + cache + batch + circuit breaker
+    ├── git.js                   ← simple-git wrappers
+    ├── logger.js                ← chalk + ora output
+    ├── config.js                ← .reviewpilotrc loader
+    ├── entropy.js               ← Shannon entropy analysis  ★ NEW
+    ├── metrics.js               ← Performance tracker       ★ NEW
+    └── telemetry.js             ← Anonymous usage telemetry  ★ NEW
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-Create a `.reviewpilotrc` file in your project root to customize behavior:
+Create a `.reviewpilotrc` file in your project root:
 
 ```json
 {
   "baseBranch": "main",
-  "excludePatterns": ["*.lock", "*.min.js", "*.min.css", "dist/**"],
+  "excludePatterns": ["*.lock", "*.min.js", "dist/**"],
   "copilotTimeout": 30000,
   "outputDir": ".reviewpilot-output",
-  "maxFileSizeKB": 500
+  "maxFileSizeKB": 500,
+  "telemetry": true,
+  "performanceBudgets": {
+    "maxFileSize": 512000,
+    "maxFunctionLength": 50,
+    "maxCyclomaticComplexity": 10
+  },
+  "retryAttempts": 3,
+  "copilotConcurrency": 3,
+  "pluginDir": ".reviewpilot-rules"
 }
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `baseBranch` | `"main"` | Branch to diff against |
-| `excludePatterns` | `["*.lock", ...]` | Glob patterns to exclude from analysis |
-| `copilotTimeout` | `30000` | Max wait for Copilot responses (ms) |
-| `outputDir` | `".reviewpilot-output"` | Directory for saved results |
-| `maxFileSizeKB` | `500` | Skip files larger than this |
+| `excludePatterns` | `["*.lock", ...]` | Glob patterns to exclude |
+| `copilotTimeout` | `30000` | Max wait for Copilot (ms) |
+| `telemetry` | `true` | Anonymous usage telemetry (opt-in) |
+| `performanceBudgets` | See above | File size, complexity, function length limits |
+| `retryAttempts` | `3` | Copilot retry count with exponential backoff |
+| `copilotConcurrency` | `3` | Max parallel Copilot calls |
+| `pluginDir` | `".reviewpilot-rules"` | Custom plugin directory |
 
 ---
 
-## 🧪 Smart Linter Rules
+## 🧠 Copilot CLI Integration
 
-ReviewPilot includes **10 built-in heuristic rules** that run instantly (no AI needed):
+ReviewPilot uses Copilot CLI at 8 integration points, each with:
 
-| Rule | Severity | What It Catches |
-|------|----------|-----------------|
-| Console statements | ⚠️ Warning | `console.log`, `console.debug`, `console.info` |
-| Hardcoded secrets | 🔴 Critical | `password = "..."`, `api_key = "..."` |
-| Debugger statements | 🔴 Error | `debugger;` left in code |
-| `eval()` usage | 🔴 Error | Security risk from dynamic code execution |
-| Empty catch blocks | ⚠️ Warning | `.catch(() => {})` swallows errors |
-| TODO/FIXME comments | ℹ️ Info | Unfinished work markers |
-| TypeScript `any` | ℹ️ Info | Loose typing |
-| Long sleep/delay | ⚠️ Warning | `sleep(10000)` performance issues |
-| `@ts-ignore` | ⚠️ Warning | Type checking suppression |
-| `process.exit()` | ⚠️ Warning | Abrupt termination risk |
-| Function length | ⚠️ Warning | Functions exceeding 50 lines |
+- **Retry with exponential backoff** (1s → 2s → 4s)
+- **Session-level prompt cache** (deduplicates identical prompts)
+- **Batch execution** with concurrency control (p-limit)
+- **Circuit breaker** — disables after 5 consecutive failures
 
-On top of heuristics, Copilot adds **semantic analysis**: logic errors, race conditions, null/undefined risks, error handling gaps, and edge cases.
+| Scenario | Behavior |
+|----------|----------|
+| Copilot not installed | Heuristic + AST + ML analysis only |
+| Copilot times out | Retries up to 3 times, then skips |
+| 5+ consecutive failures | Circuit breaker trips, no more calls |
+| `--no-copilot` flag | All AI calls skipped |
 
 ---
 
-## 📊 Output Files
+## 📊 CI/CD Integration
 
-When running with `--save`, ReviewPilot generates three files:
+### GitHub Actions
 
-| File | Contents |
-|------|----------|
-| `pr-description.md` | Ready-to-use PR description with summary, changes, issues, test coverage |
-| `checklist.md` | Context-aware review checklist (feature, API, security, database, etc.) |
-| `analysis.json` | Full structured analysis data (for programmatic use) |
+Drop the included workflow into your repo:
+
+```bash
+cp .github/workflows/reviewpilot.yml your-repo/.github/workflows/
+```
+
+This workflow:
+- Runs ReviewPilot on every PR
+- Posts findings as a structured PR comment with metrics table
+- Fails the check if critical issues are found
+- Updates existing comments on re-runs (no spam)
+
+See [`.github/workflows/reviewpilot.yml`](.github/workflows/reviewpilot.yml) for the full workflow.
 
 ---
 
@@ -265,27 +295,30 @@ When running with `--save`, ReviewPilot generates three files:
 Full modular docs in [`docs/`](docs/README.md):
 
 | Guide | What's Inside |
-|-------|--------------|
+|-------|--------------| 
 | [Installation](docs/installation.md) | Prerequisites, 3 install methods, verify |
 | [Getting Started](docs/getting-started.md) | First analysis in 2 minutes |
 | [Commands](docs/commands.md) | CLI flags, options, examples |
 | [Configuration](docs/configuration.md) | `.reviewpilotrc` reference |
-| [Copilot Integration](docs/copilot-integration.md) | 8 AI integration points |
+| [Copilot Integration](docs/copilot-integration.md) | 8 AI points + retry/cache/circuit breaker |
 | [Architecture](docs/architecture.md) | Pipeline, modules, data types |
+| [Plugins](docs/plugins.md) | Custom rule authoring guide |
+| [Benchmarks](docs/benchmarks.md) | Performance data and optimization |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues & fixes |
-| [Contributing](docs/contributing.md) | Dev setup, testing, adding rules |
+| [Contributing](docs/contributing.md) | Dev setup, testing, project structure |
 
 ---
 
-## 🔧 Development
+## 🧪 Testing
 
 ```bash
-npm test              # Run all 48 tests
+npm test              # Run all 138 tests
 npm run test:watch    # Watch mode
-node bin/reviewpilot.js check --no-copilot   # Run directly
 ```
 
-See [Contributing Guide](docs/contributing.md) for full dev setup.
+**138 tests** across 13 test suites covering all modules, with mocked Copilot and Git calls.
+
+See [Contributing Guide](docs/contributing.md) for the full test structure.
 
 ---
 
@@ -296,4 +329,3 @@ MIT © 2024
 ---
 
 *Built for the GitHub Copilot CLI Challenge 🏆*
-

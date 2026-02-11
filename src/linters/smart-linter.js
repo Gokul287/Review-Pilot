@@ -1,4 +1,8 @@
 import { askCopilot } from '../utils/copilot.js';
+import { detectSecret, isHighEntropyString, detectBase64Secrets } from '../utils/entropy.js';
+import { analyzeWithAST, canAnalyze } from '../analyzers/ast-analyzer.js';
+import { loadPlugins, runPlugin } from './plugin-loader.js';
+import { FalsePositiveFilter } from '../ml/false-positive-filter.js';
 
 /**
  * @typedef {object} Finding
@@ -6,7 +10,7 @@ import { askCopilot } from '../utils/copilot.js';
  * @property {number|null} line  - Line number (null if file-level)
  * @property {'critical'|'error'|'warning'|'info'|'suggestion'} severity
  * @property {string} message    - Human-readable finding description
- * @property {'heuristic'|'copilot'} source
+ * @property {'heuristic'|'copilot'|'ast'|'entropy'|'plugin'} source
  */
 
 // Heuristic patterns: [regex, severity, message template]
@@ -23,23 +27,62 @@ const HEURISTIC_RULES = [
     [/process\.exit/g, 'warning', 'process.exit() call — may cause abrupt termination'],
 ];
 
+// Environment file patterns
+const ENV_SECRET_KEYS = [
+    /^(API_KEY|SECRET_KEY|ACCESS_TOKEN|AUTH_TOKEN|PRIVATE_KEY|DATABASE_URL|DB_PASSWORD|AWS_SECRET)/i,
+    /^(STRIPE_SECRET|SENDGRID_API_KEY|TWILIO_AUTH_TOKEN|GITHUB_TOKEN|NPM_TOKEN)/i,
+];
+
 // Function length threshold (lines)
 const MAX_FUNCTION_LINES = 50;
 
 /**
  * Runs multi-dimensional analysis on changed code:
  *   1. Heuristic pattern matching (instant, no AI)
- *   2. Function length checks
- *   3. Copilot-powered semantic analysis (logic errors, race conditions, edge cases)
+ *   2. Entropy-based secret detection
+ *   3. AST-level semantic analysis
+ *   4. Function length checks
+ *   5. Plugin-based custom rules
+ *   6. ML false-positive filtering
+ *   7. Copilot-powered semantic analysis (logic errors, race conditions, edge cases)
  *
  * @param {import('../analyzers/diff-processor.js').FileChange[]} files
+ * @param {object} [options={}]
+ * @param {string} [options.repoRoot=process.cwd()] - Repository root for plugin loading
+ * @param {boolean} [options.useML=true] - Enable ML false-positive filtering
  * @returns {Promise<Finding[]>}
  */
-export async function analyze(files) {
+export async function analyze(files, options = {}) {
+    const { repoRoot = process.cwd(), useML = true } = options;
     const findings = [];
+
+    // Load plugins (once per run)
+    let plugins = [];
+    try {
+        plugins = await loadPlugins(repoRoot);
+    } catch {
+        // Plugin loading failure is non-fatal
+    }
+
+    // Initialize ML filter
+    let fpFilter = null;
+    if (useML) {
+        try {
+            fpFilter = new FalsePositiveFilter();
+            await fpFilter.initialize();
+        } catch {
+            fpFilter = null;
+        }
+    }
 
     for (const file of files) {
         if (file.type === 'deleted') continue;
+
+        // ── .env file scanning ───────────────────────────────
+        if (file.file.includes('.env') && !file.file.includes('.example')) {
+            const envFindings = scanEnvFile(file);
+            findings.push(...envFindings);
+        }
 
         for (const hunk of file.hunks) {
             const addedLines = hunk.changes
@@ -60,25 +103,141 @@ export async function analyze(files) {
                         });
                     }
                 }
+
+                // 2. Entropy-based secret detection
+                const strings = extractStrings(content);
+                for (const { value, context } of strings) {
+                    const result = detectSecret(value, context);
+                    if (result.isSecret) {
+                        findings.push({
+                            file: file.file,
+                            line,
+                            severity: result.confidence === 'high' ? 'critical' : 'warning',
+                            message: `${result.reason}: ${value.slice(0, 40)}...`,
+                            source: 'entropy',
+                        });
+                    }
+                }
+
+                // 3. Base64 encoded secret detection
+                const b64Strings = content.match(/['"`]([A-Za-z0-9+/]{24,}={0,2})['"`]/g);
+                if (b64Strings) {
+                    for (const match of b64Strings) {
+                        const value = match.slice(1, -1);
+                        const b64Result = detectBase64Secrets(value);
+                        if (b64Result.isSecret) {
+                            findings.push({
+                                file: file.file,
+                                line,
+                                severity: 'critical',
+                                message: `Base64-encoded credential detected: ${value.slice(0, 30)}...`,
+                                source: 'entropy',
+                            });
+                        }
+                    }
+                }
             }
 
-            // 2. Function length check
+            // 4. Function length check
             const funcLengthFindings = checkFunctionLength(hunk.content, file.file, hunk.newStart);
             findings.push(...funcLengthFindings);
 
-            // 3. Copilot semantic analysis (per-hunk, batched)
+            // 5. AST-level analysis (for supported file types)
+            if (canAnalyze(file.file) && addedLines.length >= 3) {
+                const codeSnippet = addedLines.map((l) => l.content).join('\n');
+                const astFindings = analyzeWithAST(codeSnippet, file.file);
+                for (const af of astFindings) {
+                    findings.push({
+                        file: file.file,
+                        line: af.line ? hunk.newStart + af.line - 1 : hunk.newStart,
+                        severity: af.severity,
+                        message: af.message,
+                        source: 'ast',
+                    });
+                }
+            }
+
+            // 6. Copilot semantic analysis (per-hunk, batched)
             if (addedLines.length >= 3) {
                 const codeSnippet = addedLines.map((l) => l.content).join('\n');
                 const aiFindings = await analyzeWithCopilot(codeSnippet, file.file, hunk.newStart);
                 findings.push(...aiFindings);
             }
         }
+
+        // 7. Run plugins
+        if (plugins.length > 0) {
+            const fullContent = file.hunks.map((h) => h.content).join('\n');
+            for (const plugin of plugins) {
+                const pluginFindings = await runPlugin(plugin, file.file, fullContent);
+                findings.push(...pluginFindings);
+            }
+        }
     }
 
-    return deduplicateFindings(findings);
+    // Deduplicate
+    let result = deduplicateFindings(findings);
+
+    // 8. ML false-positive filtering
+    if (fpFilter && result.length > 0) {
+        const filtered = [];
+        for (const finding of result) {
+            const { shouldReport } = await fpFilter.shouldReport(finding);
+            if (shouldReport) {
+                filtered.push(finding);
+            }
+        }
+        result = filtered;
+    }
+
+    return result;
 }
 
 // --- Internals ---
+
+function scanEnvFile(file) {
+    const findings = [];
+
+    for (const hunk of file.hunks) {
+        const addedLines = hunk.changes
+            .filter((c) => c.type === 'add')
+            .map((c) => ({ content: c.content, line: c.ln || c.ln2 || hunk.newStart }));
+
+        for (const { content, line } of addedLines) {
+            // Parse KEY=VALUE patterns
+            const envMatch = content.match(/^([A-Z_][A-Z0-9_]*)=(.+)$/);
+            if (!envMatch) continue;
+
+            const [, key, value] = envMatch;
+
+            // Check if key matches known secret patterns
+            if (ENV_SECRET_KEYS.some((p) => p.test(key)) && value.trim().length > 0) {
+                // Skip placeholder/example values
+                if (/^(your_|<|changeme|xxx|placeholder)/i.test(value.trim())) continue;
+
+                findings.push({
+                    file: file.file,
+                    line,
+                    severity: 'critical',
+                    message: `Secret in .env file: ${key}=${value.slice(0, 20)}...`,
+                    source: 'entropy',
+                });
+            }
+        }
+    }
+
+    return findings;
+}
+
+function extractStrings(line) {
+    const strings = [];
+    const regex = /(?:const|let|var)\s+(\w+)\s*=\s*['"`]([^'"`]{8,})['"`]/g;
+    let match;
+    while ((match = regex.exec(line)) !== null) {
+        strings.push({ context: match[1], value: match[2] });
+    }
+    return strings;
+}
 
 function checkFunctionLength(content, file, startLine) {
     const findings = [];
