@@ -1,0 +1,137 @@
+import { askCopilot } from '../utils/copilot.js';
+
+// Contextual checklist templates based on change categories
+const CHECKLIST_TEMPLATES = {
+    feature: [
+        'New feature is documented (README/inline comments)',
+        'Edge cases are handled (empty input, null, boundary values)',
+        'Error messages are user-friendly and actionable',
+        'No unnecessary debug/logging statements remain',
+    ],
+    bugfix: [
+        'Root cause is identified and fixed, not just the symptom',
+        'Regression test added to prevent recurrence',
+        'Fix does not introduce new side effects',
+    ],
+    refactor: [
+        'Behavior is unchanged (no functional differences)',
+        'Existing tests still pass without modifications',
+        'Documentation updated if API surface changed',
+    ],
+    test: [
+        'Tests cover happy path and error scenarios',
+        'Tests are deterministic (no flaky timing dependencies)',
+        'Test names clearly describe the scenario being tested',
+    ],
+    docs: [
+        'Spelling and grammar checked',
+        'Code examples are accurate and runnable',
+        'Links are not broken',
+    ],
+    config: [
+        'Sensitive values are not committed (use env vars)',
+        'Changes are backward-compatible',
+        'CI/CD pipeline still runs correctly',
+    ],
+    api: [
+        'API versioning considered for breaking changes',
+        'Request/response schemas updated',
+        'Rate limiting and authentication checked',
+        'API documentation (OpenAPI/Swagger) updated',
+    ],
+    database: [
+        'Migration is reversible (has a rollback script)',
+        'Indexes added for new queries',
+        'Large table changes tested with production-scale data',
+        'Backup strategy considered before migration',
+    ],
+    security: [
+        'Input validation applied to all user inputs',
+        'SQL injection / XSS / CSRF protections in place',
+        'Secrets rotated if exposed',
+        'Audit logging added for sensitive operations',
+    ],
+};
+
+/**
+ * Builds a custom review checklist based on the types of changes detected.
+ *
+ * @param {object} params
+ * @param {import('../analyzers/diff-processor.js').DiffAnalysis} params.diffAnalysis
+ * @param {import('../detectors/breaking-changes.js').BreakingChange[]} params.breakingChanges
+ * @param {import('../linters/smart-linter.js').Finding[]} params.findings
+ * @returns {Promise<string>}
+ */
+export async function buildChecklist({ diffAnalysis, breakingChanges, findings }) {
+    const sections = [];
+    sections.push('## ✅ Review Checklist');
+    sections.push('');
+
+    // Determine which categories are present
+    const categories = new Set(diffAnalysis.files.map((f) => f.category));
+
+    // Add extra categories based on detected patterns
+    if (breakingChanges.some((c) => c.severity === 'major')) {
+        categories.add('api');
+    }
+    if (findings.some((f) => f.message.toLowerCase().includes('secret') || f.message.toLowerCase().includes('credential'))) {
+        categories.add('security');
+    }
+
+    // Check for database-related files
+    const hasDBChanges = diffAnalysis.files.some((f) =>
+        /migration|schema|model|database|db\./i.test(f.file)
+    );
+    if (hasDBChanges) categories.add('database');
+
+    // Build checklist from templates
+    for (const category of categories) {
+        const items = CHECKLIST_TEMPLATES[category];
+        if (!items) continue;
+
+        sections.push(`### ${capitalize(category)}`);
+        for (const item of items) {
+            sections.push(`- [ ] ${item}`);
+        }
+        sections.push('');
+    }
+
+    // Universal checks
+    sections.push('### General');
+    sections.push('- [ ] Code follows project conventions and style guide');
+    sections.push('- [ ] No unrelated changes included in this PR');
+    sections.push('- [ ] PR description accurately reflects the changes');
+    sections.push('- [ ] Commit messages are clear and descriptive');
+    sections.push('');
+
+    // AI-generated contextual items
+    const fileList = diffAnalysis.files.map((f) => f.file).join(', ');
+    const aiChecklist = await askCopilot(
+        `Create 3-5 specific review checklist items for a PR that modifies these files: ${fileList}. ` +
+        `Focus on integration risks, data integrity, and performance. Be specific, not generic.`,
+        { timeout: 15000 }
+    );
+
+    if (aiChecklist) {
+        sections.push('### 🤖 AI-Suggested Checks');
+        const items = aiChecklist
+            .split('\n')
+            .filter((line) => line.trim())
+            .map((line) => line.replace(/^[-*•\d.)\s]+/, '').trim())
+            .filter((line) => line.length > 10);
+
+        for (const item of items.slice(0, 5)) {
+            sections.push(`- [ ] ${item}`);
+        }
+        sections.push('');
+    }
+
+    sections.push('---');
+    sections.push('*Generated by [ReviewPilot](https://github.com/reviewpilot) 🛩️*');
+
+    return sections.join('\n');
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}

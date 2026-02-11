@@ -1,0 +1,38 @@
+{
+  "name": "reviewpilot",
+  "version": "1.0.0",
+  "description": "AI-native code review companion — catches issues before human reviewers see them",
+  "type": "module",
+  "bin": {
+    "reviewpilot": "./bin/reviewpilot.js"
+  },
+  "scripts": {
+    "dev": "node bin/reviewpilot.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "link": "npm link"
+  },
+  "keywords": [
+    "code-review",
+    "cli",
+    "copilot",
+    "git",
+    "linter",
+    "developer-tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "ora": "^8.1.0",
+    "parse-diff": "^0.11.1",
+    "simple-git": "^3.27.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
