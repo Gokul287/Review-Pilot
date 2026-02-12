@@ -22,7 +22,7 @@ reviewpilot check
 ## Tests
 
 ```bash
-# Run all 138 tests
+# Run all 142 tests
 npm test
 
 # Watch mode (re-runs on file change)
@@ -65,7 +65,7 @@ Edit `src/linters/smart-linter.js`:
 ```js
 const HEURISTIC_RULES = [
   // Add your rule:
-  [/your-regex-pattern/g, 'warning', 'Description of what it catches'],
+  [/your-regex-pattern/g, "warning", "Description of what it catches"],
   // ... existing rules
 ];
 ```
@@ -73,10 +73,12 @@ const HEURISTIC_RULES = [
 Then add a test in `tests/linters/smart-linter.test.js`:
 
 ```js
-it('should detect your new pattern', async () => {
-  const files = [mockFile('app.js', ['code that matches your pattern'])];
+it("should detect your new pattern", async () => {
+  const files = [mockFile("app.js", ["code that matches your pattern"])];
   const findings = await analyze(files, { useML: false });
-  expect(findings.some((f) => f.message.includes('your description'))).toBe(true);
+  expect(findings.some((f) => f.message.includes("your description"))).toBe(
+    true,
+  );
 });
 ```
 
@@ -93,28 +95,28 @@ Edit `src/fixers/auto-fix.js` — add a new generator to the `FIX_GENERATORS` ma
 ```js
 const FIX_GENERATORS = {
   // Add your fix:
-  'your-pattern': (finding, lines, repoRoot) => ({
-    type: 'replace',
+  "your-pattern": (finding, lines, repoRoot) => ({
+    type: "replace",
     file: finding.file,
     line: finding.line,
     original: lines[finding.line - 1],
-    replacement: 'fixed version',
-    rule: 'your-pattern',
-    description: 'What this fix does',
+    replacement: "fixed version",
+    rule: "your-pattern",
+    description: "What this fix does",
   }),
 };
 ```
 
 ## Project Conventions
 
-| Convention | Rule |
-|-----------|------|
-| **Modules** | ESM (`import`/`export`), no CommonJS |
-| **Functions** | Async, pure where possible |
-| **Types** | JSDoc `@typedef` for data shapes |
-| **Errors** | Catch and log, never crash the pipeline |
-| **AI calls** | Always via `askCopilot()`, never direct `execFile` |
-| **Tests** | Pass `{ useML: false }` for deterministic assertions |
+| Convention    | Rule                                                 |
+| ------------- | ---------------------------------------------------- |
+| **Modules**   | ESM (`import`/`export`), no CommonJS                 |
+| **Functions** | Async, pure where possible                           |
+| **Types**     | JSDoc `@typedef` for data shapes                     |
+| **Errors**    | Catch and log, never crash the pipeline              |
+| **AI calls**  | Always via `askCopilot()`, never direct `execFile`   |
+| **Tests**     | Pass `{ useML: false }` for deterministic assertions |
 
 ## Commit Messages
 

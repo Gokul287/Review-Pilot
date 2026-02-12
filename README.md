@@ -16,30 +16,30 @@
 
 ReviewPilot runs a **9-step analysis pipeline** on your code changes with **8 analysis dimensions**:
 
-| Step | What It Checks | Powered By |
-|------|---------------|------------|
-| 1. **Diff Analysis** | Parses changes, categorizes files | Git + parse-diff |
-| 2. **Context Gathering** | Finds dependents, related tests | Import scanning + Copilot |
-| 3. **Smart Linting** | 8-layer multi-dimensional analysis | See below |
-| 4. **Test Coverage** | Identifies untested code paths | Heuristic + Copilot |
-| 5. **Performance Budgets** | File size, complexity, function length | AST analysis |
-| 6. **Breaking Changes** | Compares exported API signatures | Signature diff |
-| 7. **PR Description** | Generates structured markdown | Copilot |
-| 8. **Review Checklist** | Context-aware checklist (9 categories) | Template + Copilot |
-| 9. **Auto-Fix** | Fix issues automatically | Built-in + Copilot |
+| Step                       | What It Checks                         | Powered By                |
+| -------------------------- | -------------------------------------- | ------------------------- |
+| 1. **Diff Analysis**       | Parses changes, categorizes files      | Git + parse-diff          |
+| 2. **Context Gathering**   | Finds dependents, related tests        | Import scanning + Copilot |
+| 3. **Smart Linting**       | 8-layer multi-dimensional analysis     | See below                 |
+| 4. **Test Coverage**       | Identifies untested code paths         | Heuristic + Copilot       |
+| 5. **Performance Budgets** | File size, complexity, function length | AST analysis              |
+| 6. **Breaking Changes**    | Compares exported API signatures       | Signature diff            |
+| 7. **PR Description**      | Generates structured markdown          | Copilot                   |
+| 8. **Review Checklist**    | Context-aware checklist (9 categories) | Template + Copilot        |
+| 9. **Auto-Fix**            | Fix issues automatically               | Built-in + Copilot        |
 
 ### 8-Layer Smart Linting
 
-| Layer | What It Catches | Technology |
-|-------|----------------|------------|
-| **Heuristic Rules** | console.log, debugger, eval, @ts-ignore | Regex patterns |
-| **Entropy Detection** | Hardcoded secrets, API keys, tokens | Shannon entropy |
-| **AST Analysis** | Console outside conditionals, XSS, empty catches | Babel parser |
-| **.env Scanning** | Secrets in environment files | Pattern matching |
-| **Performance Budgets** | Oversize files, complex functions | AST + metrics |
-| **Plugin Rules** | Custom team rules | `.reviewpilot-rules/` |
-| **ML Filtering** | False positive reduction | Naive Bayes classifier |
-| **Copilot Semantic** | Logic errors, race conditions, edge cases | GitHub Copilot CLI |
+| Layer                   | What It Catches                                  | Technology             |
+| ----------------------- | ------------------------------------------------ | ---------------------- |
+| **Heuristic Rules**     | console.log, debugger, eval, @ts-ignore          | Regex patterns         |
+| **Entropy Detection**   | Hardcoded secrets, API keys, tokens              | Shannon entropy        |
+| **AST Analysis**        | Console outside conditionals, XSS, empty catches | Babel parser           |
+| **.env Scanning**       | Secrets in environment files                     | Pattern matching       |
+| **Performance Budgets** | Oversize files, complex functions                | AST + metrics          |
+| **Plugin Rules**        | Custom team rules                                | `.reviewpilot-rules/`  |
+| **ML Filtering**        | False positive reduction                         | Naive Bayes classifier |
+| **Copilot Semantic**    | Logic errors, race conditions, edge cases        | GitHub Copilot CLI     |
 
 ---
 
@@ -48,8 +48,8 @@ ReviewPilot runs a **9-step analysis pipeline** on your code changes with **8 an
 ### Prerequisites
 
 - **Node.js ≥ 18** — [Install](https://nodejs.org/)
-- **GitHub Copilot CLI** — [Install](https://docs.github.com/en/copilot) *(recommended)*
-- **GitHub CLI (`gh`)** — [Install](https://cli.github.com/) *(for PR creation only)*
+- **GitHub Copilot CLI** — [Install](https://docs.github.com/en/copilot) _(recommended)_
+- **GitHub CLI (`gh`)** — [Install](https://cli.github.com/) _(for PR creation only)_
 
 ### Install
 
@@ -175,14 +175,14 @@ Create custom linting rules for your team. Drop `.js` files into `.reviewpilot-r
 ```javascript
 // .reviewpilot-rules/no-axios.js
 export default {
-  name: 'no-axios',
-  severity: 'info',
-  description: 'Prefer native fetch over axios',
+  name: "no-axios",
+  severity: "info",
+  description: "Prefer native fetch over axios",
   async analyze(filename, content) {
     const findings = [];
-    content.split('\n').forEach((line, i) => {
+    content.split("\n").forEach((line, i) => {
       if (/import.*axios|require\(.*axios/.test(line)) {
-        findings.push({ line: i + 1, message: 'Prefer fetch API over axios' });
+        findings.push({ line: i + 1, message: "Prefer fetch API over axios" });
       }
     });
     return findings;
@@ -258,16 +258,16 @@ Create a `.reviewpilotrc` file in your project root:
 }
 ```
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `baseBranch` | `"main"` | Branch to diff against |
-| `excludePatterns` | `["*.lock", ...]` | Glob patterns to exclude |
-| `copilotTimeout` | `30000` | Max wait for Copilot (ms) |
-| `telemetry` | `true` | Anonymous usage telemetry (opt-in) |
-| `performanceBudgets` | See above | File size, complexity, function length limits |
-| `retryAttempts` | `3` | Copilot retry count with exponential backoff |
-| `copilotConcurrency` | `3` | Max parallel Copilot calls |
-| `pluginDir` | `".reviewpilot-rules"` | Custom plugin directory |
+| Option               | Default                | Description                                   |
+| -------------------- | ---------------------- | --------------------------------------------- |
+| `baseBranch`         | `"main"`               | Branch to diff against                        |
+| `excludePatterns`    | `["*.lock", ...]`      | Glob patterns to exclude                      |
+| `copilotTimeout`     | `30000`                | Max wait for Copilot (ms)                     |
+| `telemetry`          | `true`                 | Anonymous usage telemetry (opt-in)            |
+| `performanceBudgets` | See above              | File size, complexity, function length limits |
+| `retryAttempts`      | `3`                    | Copilot retry count with exponential backoff  |
+| `copilotConcurrency` | `3`                    | Max parallel Copilot calls                    |
+| `pluginDir`          | `".reviewpilot-rules"` | Custom plugin directory                       |
 
 ---
 
@@ -280,12 +280,12 @@ ReviewPilot uses Copilot CLI at 8 integration points, each with:
 - **Batch execution** with concurrency control (p-limit)
 - **Circuit breaker** — disables after 5 consecutive failures
 
-| Scenario | Behavior |
-|----------|----------|
-| Copilot not installed | Heuristic + AST + ML analysis only |
-| Copilot times out | Retries up to 3 times, then skips |
+| Scenario                | Behavior                             |
+| ----------------------- | ------------------------------------ |
+| Copilot not installed   | Heuristic + AST + ML analysis only   |
+| Copilot times out       | Retries up to 3 times, then skips    |
 | 5+ consecutive failures | Circuit breaker trips, no more calls |
-| `--no-copilot` flag | All AI calls skipped |
+| `--no-copilot` flag     | All AI calls skipped                 |
 
 ---
 
@@ -300,6 +300,7 @@ cp .github/workflows/reviewpilot.yml your-repo/.github/workflows/
 ```
 
 This workflow:
+
 - Runs ReviewPilot on every PR
 - Posts findings as a structured PR comment with metrics table
 - Fails the check if critical issues are found
@@ -312,17 +313,17 @@ See [examples/ci-integration/](examples/ci-integration/) for GitLab, Jenkins, an
 
 ## 🆚 Why ReviewPilot?
 
-| Feature | ReviewPilot | Danger.js | CodeRabbit | SonarQube | ESLint |
-|---------|------------|-----------|------------|-----------|--------|
-| **Local execution** | ✅ | ❌ CI-only | ❌ Cloud | ⚠️ Server | ✅ |
-| **AI-powered** | ✅ Copilot | ❌ | ✅ Proprietary | ❌ | ❌ |
-| **Offline mode** | ✅ | ❌ | ❌ | ✅ | ✅ |
-| **Auto-fix** | ✅ Interactive | ❌ | ⚠️ | ❌ | ⚠️ |
-| **Entropy secrets** | ✅ Shannon | ❌ | ❌ | ⚠️ | ❌ |
-| **Breaking changes** | ✅ | ❌ | ⚠️ | ❌ | ❌ |
-| **ML false-positive filter** | ✅ | ❌ | ✅ | ❌ | ❌ |
-| **Cost** | **Free** | Free + CI | $49/mo | $150+/mo | Free |
-| **Setup** | **2 min** | 30 min | 10 min | Hours | 5 min |
+| Feature                      | ReviewPilot    | Danger.js  | CodeRabbit     | SonarQube | ESLint |
+| ---------------------------- | -------------- | ---------- | -------------- | --------- | ------ |
+| **Local execution**          | ✅             | ❌ CI-only | ❌ Cloud       | ⚠️ Server | ✅     |
+| **AI-powered**               | ✅ Copilot     | ❌         | ✅ Proprietary | ❌        | ❌     |
+| **Offline mode**             | ✅             | ❌         | ❌             | ✅        | ✅     |
+| **Auto-fix**                 | ✅ Interactive | ❌         | ⚠️             | ❌        | ⚠️     |
+| **Entropy secrets**          | ✅ Shannon     | ❌         | ❌             | ⚠️        | ❌     |
+| **Breaking changes**         | ✅             | ❌         | ⚠️             | ❌        | ❌     |
+| **ML false-positive filter** | ✅             | ❌         | ✅             | ❌        | ❌     |
+| **Cost**                     | **Free**       | Free + CI  | $49/mo         | $150+/mo  | Free   |
+| **Setup**                    | **2 min**      | 30 min     | 10 min         | Hours     | 5 min  |
 
 ![Comparison Chart](docs/images/comparison-chart.png)
 
@@ -334,30 +335,30 @@ See [docs/comparison.md](docs/comparison.md) for detailed analysis with cost bre
 
 Full modular docs in [`docs/`](docs/README.md):
 
-| Guide | What's Inside |
-|-------|--------------| 
-| [Installation](docs/installation.md) | Prerequisites, 3 install methods, verify |
-| [Getting Started](docs/getting-started.md) | First analysis in 2 minutes |
-| [Commands](docs/commands.md) | CLI flags, options, examples |
-| [Configuration](docs/configuration.md) | `.reviewpilotrc` reference |
+| Guide                                              | What's Inside                             |
+| -------------------------------------------------- | ----------------------------------------- |
+| [Installation](docs/installation.md)               | Prerequisites, 3 install methods, verify  |
+| [Getting Started](docs/getting-started.md)         | First analysis in 2 minutes               |
+| [Commands](docs/commands.md)                       | CLI flags, options, examples              |
+| [Configuration](docs/configuration.md)             | `.reviewpilotrc` reference                |
 | [Copilot Integration](docs/copilot-integration.md) | 8 AI points + retry/cache/circuit breaker |
-| [Architecture](docs/architecture.md) | Pipeline, modules, data types |
-| [Plugins](docs/plugins.md) | Custom rule authoring guide |
-| [Benchmarks](docs/benchmarks.md) | Performance data and optimization |
-| [Comparison](docs/comparison.md) | Competitor analysis and cost breakdown |
-| [Troubleshooting](docs/troubleshooting.md) | Common issues & fixes |
-| [Contributing](docs/contributing.md) | Dev setup, testing, project structure |
+| [Architecture](docs/architecture.md)               | Pipeline, modules, data types             |
+| [Plugins](docs/plugins.md)                         | Custom rule authoring guide               |
+| [Benchmarks](docs/benchmarks.md)                   | Performance data and optimization         |
+| [Comparison](docs/comparison.md)                   | Competitor analysis and cost breakdown    |
+| [Troubleshooting](docs/troubleshooting.md)         | Common issues & fixes                     |
+| [Contributing](docs/contributing.md)               | Dev setup, testing, project structure     |
 
 ---
 
 ## 🧪 Testing
 
 ```bash
-npm test              # Run all 138 tests
+npm test              # Run all 142 tests
 npm run test:watch    # Watch mode
 ```
 
-**138 tests** across 13 test suites covering all modules, with mocked Copilot and Git calls.
+**142 tests** across 13 test suites covering all modules, with mocked Copilot and Git calls.
 
 See [Contributing Guide](docs/contributing.md) for the full test structure.
 
@@ -372,8 +373,8 @@ MIT © 2024
 ## 🏆 Competition Stats
 
 - **8-layer analysis** — beyond what any single tool provides
-- **138 tests** across 13 suites
+- **142 tests** across 13 suites
 - **2-minute setup** — clone, install, run
 - **Free** — uses your existing Copilot license
 
-*Built for the GitHub Copilot CLI Challenge 🏆*
+_Built for the GitHub Copilot CLI Challenge 🏆_
