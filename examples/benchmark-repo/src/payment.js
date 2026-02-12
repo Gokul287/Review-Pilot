@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Payment processing module.
  */
 
@@ -10,7 +10,7 @@ export async function processPayment(amount, currency) {
 
     const result = await stripe.charge({ amount, currency, token });
 
-    // ISSUE 5: Empty catch block â€” errors silently swallowed
+    // ISSUE 5: Empty catch block — errors silently swallowed
     try {
         await logTransaction(result);
     } catch () {}

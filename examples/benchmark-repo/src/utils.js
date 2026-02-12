@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Shared utility functions.
  */
 
