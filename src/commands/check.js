@@ -123,7 +123,7 @@ export async function checkCommand(options) {
         log.stepProgress(3, TOTAL_STEPS, 'Gathering context');
         tracker.startStep('Gather Context');
         try {
-            results.context = await gatherContext(files);
+            results.context = await gatherContext(files, process.cwd());
             log.succeedSpinner('Context gathered');
         } catch (err) {
             results.errors.push({ step: 'Gather Context', error: err.message });

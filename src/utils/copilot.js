@@ -39,7 +39,7 @@ export function clearCopilotCache() {
  * @param {number} options.retries - Number of retry attempts (default 3)
  * @returns {Promise<string|null>} Copilot's response or null if unavailable
  */
-export async function askCopilot(prompt, { timeout = 30000, retries = 3 } = {}) {
+export async function askCopilot(prompt, { timeout = 60000, retries = 3 } = {}) {
   if (copilotAvailable === false) return null;
   if (circuitOpen) return null;
 
@@ -55,7 +55,7 @@ export async function askCopilot(prompt, { timeout = 30000, retries = 3 } = {}) 
   // Retry loop with exponential backoff
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const result = await execCommand('copilot', ['-p', prompt], { timeout });
+      const result = await runCopilot(prompt, timeout);
       copilotAvailable = true;
       consecutiveFailures = 0;
 
@@ -65,8 +65,8 @@ export async function askCopilot(prompt, { timeout = 30000, retries = 3 } = {}) 
     } catch (err) {
       if (isNotFoundError(err)) {
         if (copilotAvailable === null) {
-          warn('Copilot CLI not found — running in heuristic-only mode.');
-          warn('Install: npm install -g @github/copilot');
+          warn('Copilot CLI not found — running with heuristics only');
+          warn('Install: gh extension install github/gh-copilot');
         }
         copilotAvailable = false;
         return null;
@@ -138,16 +138,38 @@ export async function askCopilotBatch(requests, { timeout = 30000, concurrency =
 export async function isCopilotAvailable() {
   if (copilotAvailable !== null) return copilotAvailable;
 
+  // Try `gh copilot` first (GitHub CLI extension), then standalone `copilot`
   try {
-    await execCommand('copilot', ['--version'], { timeout: 5000 });
+    await execCommand('gh', ['copilot', '--', '--version'], { timeout: 5000 });
     copilotAvailable = true;
   } catch {
-    copilotAvailable = false;
+    try {
+      await execCommand('copilot', ['--version'], { timeout: 5000 });
+      copilotAvailable = true;
+    } catch {
+      copilotAvailable = false;
+    }
   }
   return copilotAvailable;
 }
 
 // --- internals ---
+
+/**
+ * Run a Copilot prompt via `gh copilot` (preferred) or standalone `copilot`.
+ */
+async function runCopilot(prompt, timeout) {
+  try {
+    // Try GitHub CLI extension first: `gh copilot -p "..."`
+    return await execCommand('gh', ['copilot', '-p', prompt], { timeout });
+  } catch (err) {
+    if (isNotFoundError(err)) {
+      // Fallback to standalone `copilot` binary
+      return await execCommand('copilot', ['-p', prompt], { timeout });
+    }
+    throw err;
+  }
+}
 
 function recordFailure() {
   stats.failures++;
