@@ -29,18 +29,19 @@ describe('PerformanceTracker', () => {
         expect(summary.breakdown).toHaveLength(2);
     });
 
-    it('should calculate percentages', async () => {
-        tracker.startStep('Fast');
-        await new Promise((r) => setTimeout(r, 10));
-        tracker.endStep();
-
-        tracker.startStep('Slow');
-        await new Promise((r) => setTimeout(r, 30));
-        tracker.endStep();
+    it('should calculate percentages', () => {
+        // Manually set steps to ensure deterministic percentages
+        tracker.steps = [
+            { name: 'Fast', duration: 100, start: 0, end: 100 },
+            { name: 'Slow', duration: 400, start: 100, end: 500 },
+        ]; // Total 500ms -> Fast=20%, Slow=80%
 
         const summary = tracker.getSummary();
         const fastPct = parseFloat(summary.breakdown[0].percent);
         const slowPct = parseFloat(summary.breakdown[1].percent);
+        
+        expect(fastPct).toBe(20.0);
+        expect(slowPct).toBe(80.0);
         expect(slowPct).toBeGreaterThan(fastPct);
     });
 
