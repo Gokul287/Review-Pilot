@@ -8,6 +8,8 @@
 [![Copilot CLI](https://img.shields.io/badge/Copilot_CLI-Powered-blueviolet.svg)](https://docs.github.com/en/copilot)
 [![Tests](https://img.shields.io/badge/Tests-143_passing-brightgreen.svg)](#)
 
+![ReviewPilot Analysis](docs/images/ReviewPilot-Analysis.png)
+
 ---
 
 ## 🎯 What It Does
@@ -112,6 +114,8 @@ reviewpilot fix --interactive
 reviewpilot fix --issue 3
 ```
 
+![Auto-Fix Interactive](docs/images/fix-interactive.png)
+
 > Run `reviewpilot check --save` first — the fix command reads from `analysis.json`.
 
 ### `reviewpilot create-pr` — Open a GitHub PR
@@ -159,6 +163,8 @@ reviewpilot create-pr --draft --title "feat: add user authentication"
    Total: 4.2s | Bottleneck: Smart Linting (1.8s, 43%)
    Memory: 87MB RSS | Copilot: 4 calls, 2 cache hits, 0 failures
 ```
+
+![Detailed Findings](docs/images/Findings.png)
 
 ---
 
@@ -317,6 +323,8 @@ See [examples/ci-integration/](examples/ci-integration/) for GitLab, Jenkins, an
 | **ML false-positive filter** | ✅ | ❌ | ✅ | ❌ | ❌ |
 | **Cost** | **Free** | Free + CI | $49/mo | $150+/mo | Free |
 | **Setup** | **2 min** | 30 min | 10 min | Hours | 5 min |
+
+![Comparison Chart](docs/images/comparison-chart.png)
 
 See [docs/comparison.md](docs/comparison.md) for detailed analysis with cost breakdown and real-world scenarios.
 

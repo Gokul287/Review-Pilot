@@ -1,0 +1,155 @@
+{
+  "timestamp": "2026-02-12T06:43:03.115Z",
+  "findings": [
+    {
+      "file": "src/auth.js",
+      "line": 7,
+      "severity": "critical",
+      "message": "Potential hardcoded secret or credential: +    const apiKey = \"EXAMPLE_KEY_a8f3Kd9Lm2Xp7Qr4Nt6Wz1Yb5Hj0Vc3Se8Ug\";",
+      "source": "heuristic"
+    },
+    {
+      "file": "src/auth.js",
+      "line": 7,
+      "severity": "critical",
+      "message": "High-entropy value in security-sensitive variable: EXAMPLE_KEY_a8f3Kd9Lm2Xp7Qr4Nt6Wz1Yb5Hj0...",
+      "source": "entropy"
+    },
+    {
+      "file": "src/auth.js",
+      "line": 12,
+      "severity": "warning",
+      "message": "Leftover console statement: +    console.log('User authenticated:', user);",
+      "source": "heuristic"
+    },
+    {
+      "file": "src/auth.js",
+      "line": 18,
+      "severity": "error",
+      "message": "Use of eval() — security risk: +    // ISSUE 3: eval() usage — security risk",
+      "source": "heuristic"
+    },
+    {
+      "file": "src/auth.js",
+      "line": 19,
+      "severity": "error",
+      "message": "Use of eval() — security risk: +    const role = eval('user.role');",
+      "source": "heuristic"
+    },
+    {
+      "file": "src/payment.js",
+      "line": 9,
+      "severity": "critical",
+      "message": "Potential hardcoded secret or credential: +    const token = \"RkFLRV9UT0tFTl9mb3JfYmVuY2htYXJrX3Rlc3Rpbmc=\";",
+      "source": "heuristic"
+    },
+    {
+      "file": "src/payment.js",
+      "line": 9,
+      "severity": "critical",
+      "message": "Base64-encoded credential detected: RkFLRV9UT0tFTl9mb3JfYmVuY2htYXJrX3Rlc3Rp...",
+      "source": "entropy"
+    },
+    {
+      "file": "src/utils.js",
+      "line": 35,
+      "severity": "info",
+      "message": "TypeScript \"any\" type usage — consider a stricter type: +    result.company = user.company;",
+      "source": "heuristic"
+    },
+    {
+      "file": "src/utils.js",
+      "line": 18,
+      "severity": "warning",
+      "message": "Function \"processUserData\" is 59 lines long (max recommended: 50)",
+      "source": "heuristic"
+    }
+  ],
+  "budgetViolations": [
+    {
+      "type": "function-length",
+      "file": "src/utils.js",
+      "actual": 59,
+      "limit": 50,
+      "message": "Function \"processUserData\" is 59 lines (budget: 50)"
+    }
+  ],
+  "breakingChanges": [
+    {
+      "file": "src/database.js",
+      "functionName": "query",
+      "oldSignature": "sql, params",
+      "newSignature": "(removed)",
+      "severity": "major",
+      "description": "Exported \"query\" was removed — this is a breaking change for all consumers"
+    },
+    {
+      "file": "src/utils.js",
+      "functionName": "processUserData",
+      "oldSignature": "(new)",
+      "newSignature": "user",
+      "severity": "patch",
+      "description": "New export \"processUserData\" added"
+    }
+  ],
+  "errors": [],
+  "metrics": {
+    "totalTime": 112959,
+    "totalTimeFormatted": "1m 53s",
+    "wallTime": 114101,
+    "wallTimeFormatted": "1m 54s",
+    "breakdown": [
+      {
+        "step": "Get Diff",
+        "ms": 160,
+        "percent": "0.1"
+      },
+      {
+        "step": "Process Diff",
+        "ms": 37799,
+        "percent": "33.5"
+      },
+      {
+        "step": "Gather Context",
+        "ms": 39833,
+        "percent": "35.3",
+        "isBottleneck": true
+      },
+      {
+        "step": "Smart Linting",
+        "ms": 34579,
+        "percent": "30.6"
+      },
+      {
+        "step": "Test Coverage",
+        "ms": 5,
+        "percent": "0.0"
+      },
+      {
+        "step": "Performance Budgets",
+        "ms": 84,
+        "percent": "0.1"
+      },
+      {
+        "step": "Breaking Changes",
+        "ms": 496,
+        "percent": "0.4"
+      },
+      {
+        "step": "PR Description",
+        "ms": 2,
+        "percent": "0.0"
+      },
+      {
+        "step": "Review Checklist",
+        "ms": 1,
+        "percent": "0.0"
+      }
+    ],
+    "memory": {
+      "rss": 23.3,
+      "heapUsed": 13.7,
+      "heapTotal": 15.4
+    }
+  }
+}

@@ -1,0 +1,203 @@
+
+  ΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
+  Γòæ   ≡ƒ¢⌐∩╕Å  ReviewPilot ΓÇö AI Code Review   Γòæ
+  ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+
+
+  Γ£ª ReviewPilot Analysis
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  Γä╣ Base branch: main
+  Γ£ö Copilot CLI detected ΓÇö AI analysis enabled
+- [1/9] Getting diff...
+Γ£ö Diff retrieved
+- [2/9] Processing diff...
+  ΓÜá Copilot error after 4 attempts: Command failed: gh copilot -p Analyze this set of code changes and provide a brief impact summary (2-3 sentences):
+  - src/auth.js (modified, +11/-3)
+  - src/database.js (modified, +2/-1)
+  - src/payment.js (modified, +12/-5)
+  - src/utils.js (modified, +61/-0)
+
+402 You have no quota
+
+Total usage est:        0 Premium requests
+API time spent:         0s
+Total session time:     5s
+Total code changes:     +0 -0
+
+Γ£ö Processed 4 file(s)
+  Γä╣ Files: 4 changed (86 additions, 9 deletions)
+
+- [3/9] Gathering context...
+  ΓÜá Copilot error after 4 attempts: Command failed: gh copilot -p Find all files that depend on or import these changed files and explain the impact: src/auth.js, src/database.js, src/payment.js, src/utils.js
+
+402 You have no quota
+
+Total usage est:        0 Premium requests
+API time spent:         0s
+Total session time:     5s
+Total code changes:     +0 -0
+
+Γ£ö Context gathered
+- [4/9] Smart Linting...
+  ΓÜá Copilot error after 4 attempts: Command failed: gh copilot -p Review this code change for potential issues. Check for logic errors, race conditions, null/undefined risks, error handling gaps, and edge cases. Be concise ΓÇö list only real issues, not style preferences:
+
++    // ISSUE 1: Hardcoded API key (entropy-based + heuristic detection)
++    const apiKey = "EXAMPLE_KEY_a8f3Kd9Lm2Xp7Qr4Nt6Wz1Yb5Hj0Vc3Se8Ug";
++
++    // ISSUE 2: Console log leaking sensitive data
++    console.log('User authenticated:', user);
++
++    // ISSUE 3: eval() usage ΓÇö security risk
++    const role = eval('user.role');
++
++    return { id: user.id, token: generateToken(user), role };
+
+402 You have no quota
+
+Total usage est:        0 Premium requests
+API time spent:         0s
+Total session time:     5s
+Total code changes:     +0 -0
+
+  ΓÜá Copilot circuit breaker opened after 3 consecutive failures ΓÇö skipping remaining AI calls.
+Γ£ö 9 finding(s)
+- [5/9] Checking test coverage...
+Γ£ö Test coverage checked
+- [6/9] Checking performance budgets...
+Γ£ö 1 budget violation(s)
+- [7/9] Detecting breaking changes...
+Γ£ö 2 breaking change(s)
+- [8/9] Generating PR description...
+Γ£ö PR description generated
+- [9/9] Building review checklist...
+Γ£ö Review checklist built
+
+  ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+  Γ£ª Findings
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+   CRITICAL  src/auth.js:7  Potential hardcoded secret or credential: +    const apiKey = "EXAMPLE_KEY_a8f3Kd9Lm2Xp7Qr4Nt6Wz1Yb5Hj0Vc3Se8Ug"; [heuristic]
+   CRITICAL  src/auth.js:7  High-entropy value in security-sensitive variable: EXAMPLE_KEY_a8f3Kd9Lm2Xp7Qr4Nt6Wz1Yb5Hj0... [entropy]
+   WARNING  src/auth.js:12  Leftover console statement: +    console.log('User authenticated:', user); [heuristic]
+   ERROR  src/auth.js:18  Use of eval() ΓÇö security risk: +    // ISSUE 3: eval() usage ΓÇö security risk [heuristic]
+   ERROR  src/auth.js:19  Use of eval() ΓÇö security risk: +    const role = eval('user.role'); [heuristic]
+   CRITICAL  src/payment.js:9  Potential hardcoded secret or credential: +    const token = "RkFLRV9UT0tFTl9mb3JfYmVuY2htYXJrX3Rlc3Rpbmc="; [heuristic]
+   CRITICAL  src/payment.js:9  Base64-encoded credential detected: RkFLRV9UT0tFTl9mb3JfYmVuY2htYXJrX3Rlc3Rp... [entropy]
+   INFO  src/utils.js:35  TypeScript "any" type usage ΓÇö consider a stricter type: +    result.company = user.company; [heuristic]
+   WARNING  src/utils.js:18  Function "processUserData" is 59 lines long (max recommended: 50) [heuristic]
+
+
+  Γ£ª Performance Budget Violations
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  ΓÜá src/utils.js: Function "processUserData" is 59 lines (budget: 50)
+
+
+  Γ£ª Breaking Changes
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  ΓÜá src/database.js: query ΓÇö Exported "query" was removed ΓÇö this is a breaking change for all consumers
+  ΓÜá src/utils.js: processUserData ΓÇö New export "processUserData" added
+
+
+  Γ£ª Generated PR Description
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+## ≡ƒôï Pull Request: `main`
+
+### Summary
+This PR modifies **4** files with **+86** additions and **-9** deletions.
+
+### Changes
+
+**Feature:**
+- Γ£Å∩╕Å `src/auth.js` (+11/-3)
+- Γ£Å∩╕Å `src/database.js` (+2/-1)
+- Γ£Å∩╕Å `src/payment.js` (+12/-5)
+- Γ£Å∩╕Å `src/utils.js` (+61/-0)
+
+### ΓÜá∩╕Å Breaking Changes
+- **`query`** in `src/database.js`: Exported "query" was removed ΓÇö this is a breaking change for all consumers
+
+### ≡ƒöì Issues Found (9)
+
+**CRITICAL:**
+- `src/auth.js:7` ΓÇö Potential hardcoded secret or credential: +    const apiKey = "EXAMPLE_KEY_a8f3Kd9Lm2Xp7Qr4Nt6Wz1Yb5Hj0Vc3Se8Ug";
+- `src/auth.js:7` ΓÇö High-entropy value in security-sensitive variable: EXAMPLE_KEY_a8f3Kd9Lm2Xp7Qr4Nt6Wz1Yb5Hj0...
+- `src/payment.js:9` ΓÇö Potential hardcoded secret or credential: +    const token = "RkFLRV9UT0tFTl9mb3JfYmVuY2htYXJrX3Rlc3Rpbmc=";
+- `src/payment.js:9` ΓÇö Base64-encoded credential detected: RkFLRV9UT0tFTl9mb3JfYmVuY2htYXJrX3Rlc3Rp...
+
+**WARNING:**
+- `src/auth.js:12` ΓÇö Leftover console statement: +    console.log('User authenticated:', user);
+- `src/utils.js:18` ΓÇö Function "processUserData" is 59 lines long (max recommended: 50)
+
+**ERROR:**
+- `src/auth.js:18` ΓÇö Use of eval() ΓÇö security risk: +    // ISSUE 3: eval() usage ΓÇö security risk
+- `src/auth.js:19` ΓÇö Use of eval() ΓÇö security risk: +    const role = eval('user.role');
+
+**INFO:**
+- `src/utils.js:35` ΓÇö TypeScript "any" type usage ΓÇö consider a stricter type: +    result.company = user.company;
+
+### ≡ƒº¬ Test Coverage
+ΓÜá∩╕Å **3** file(s) lack test coverage:
+- `src/database.js`
+- `src/payment.js`
+- `src/utils.js`
+
+---
+*Generated by [ReviewPilot](https://github.com/reviewpilot) ≡ƒ¢⌐∩╕Å*
+
+
+  Γ£ª Review Checklist
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+## Γ£à Review Checklist
+
+### Feature
+- [ ] New feature is documented (README/inline comments)
+- [ ] Edge cases are handled (empty input, null, boundary values)
+- [ ] Error messages are user-friendly and actionable
+- [ ] No unnecessary debug/logging statements remain
+
+### Api
+- [ ] API versioning considered for breaking changes
+- [ ] Request/response schemas updated
+- [ ] Rate limiting and authentication checked
+- [ ] API documentation (OpenAPI/Swagger) updated
+
+### Security
+- [ ] Input validation applied to all user inputs
+- [ ] SQL injection / XSS / CSRF protections in place
+- [ ] Secrets rotated if exposed
+- [ ] Audit logging added for sensitive operations
+
+### Database
+- [ ] Migration is reversible (has a rollback script)
+- [ ] Indexes added for new queries
+- [ ] Large table changes tested with production-scale data
+- [ ] Backup strategy considered before migration
+
+### General
+- [ ] Code follows project conventions and style guide
+- [ ] No unrelated changes included in this PR
+- [ ] PR description accurately reflects the changes
+- [ ] Commit messages are clear and descriptive
+
+---
+*Generated by [ReviewPilot](https://github.com/reviewpilot) ≡ƒ¢⌐∩╕Å*
+
+
+  ΓÜí Performance Metrics
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  Total time: 1m 46s
+  
+  Breakdown:
+    Get Diff                163ms   (0.2%)
+    Process Diff            35.1s  (33.0%)
+    Gather Context          35.1s  (33.0%)
+    Smart Linting           35.5s  (33.3%) ΓåÉ Bottleneck
+    Test Coverage             1ms   (0.0%)
+    Performance Budgets      41ms   (0.0%)
+    Breaking Changes        473ms   (0.4%)
+    PR Description            1ms   (0.0%)
+    Review Checklist          1ms   (0.0%)
+  
+  Memory: 27.4MB RSS, 13.2MB heap
+
+  Γä╣ Copilot: 3 calls, 0 cache hits, 9 retries, 3 failures
