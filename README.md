@@ -366,7 +366,7 @@ See [Contributing Guide](docs/contributing.md) for the full test structure.
 
 ## 📝 License
 
-MIT © 2024
+MIT © 2026
 
 ---
 
