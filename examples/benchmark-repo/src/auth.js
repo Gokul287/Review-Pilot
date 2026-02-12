@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication module
  */
 
@@ -15,7 +15,7 @@ export async function login(username, password) {
         throw new Error('Invalid credentials');
     }
 
-    // ISSUE 3: eval() usage — security risk
+    // ISSUE 3: eval() usage â€” security risk
     const role = eval('user.role');
 
     return { id: user.id, token: generateToken(user), role };

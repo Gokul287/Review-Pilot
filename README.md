@@ -6,7 +6,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-≥18-green.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Copilot CLI](https://img.shields.io/badge/Copilot_CLI-Powered-blueviolet.svg)](https://docs.github.com/en/copilot)
-[![Tests](https://img.shields.io/badge/Tests-138_passing-brightgreen.svg)](#)
+[![Tests](https://img.shields.io/badge/Tests-143_passing-brightgreen.svg)](#)
 
 ---
 
