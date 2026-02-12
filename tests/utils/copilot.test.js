@@ -21,24 +21,49 @@ beforeEach(async () => {
 
 describe('copilot', () => {
     describe('askCopilot', () => {
-        it('should return Copilot response when available', async () => {
+        it('should return Copilot response when available via gh', async () => {
             execFile.mockImplementation((cmd, args, opts, cb) => {
-                cb(null, 'This code looks clean with no issues.\n', '');
+                if (cmd === 'gh') {
+                    cb(null, 'This code looks clean with no issues.\n', '');
+                } else {
+                    cb(new Error('not found'), '', '');
+                }
             });
 
             const result = await askCopilot('Review this code');
 
             expect(result).toBe('This code looks clean with no issues.');
             expect(execFile).toHaveBeenCalledWith(
-                'copilot',
-                ['-p', 'Review this code'],
-                expect.objectContaining({ timeout: 30000 }),
+                'gh',
+                ['copilot', '-p', 'Review this code'],
+                expect.objectContaining({ timeout: 60000 }), // Checked against new default
                 expect.any(Function)
             );
         });
 
-        it('should return null when Copilot binary not found (ENOENT)', async () => {
-            const err = new Error('spawn copilot ENOENT');
+        it('should use fallback to copilot binary if gh fails', async () => {
+            execFile.mockImplementation((cmd, args, opts, cb) => {
+                if (cmd === 'gh') {
+                    const err = new Error('gh: command not found');
+                    err.code = 'ENOENT';
+                    cb(err, '', '');
+                } else if (cmd === 'copilot') {
+                    cb(null, 'Fallback response', '');
+                }
+            });
+
+            const result = await askCopilot('Review this code');
+            expect(result).toBe('Fallback response');
+            expect(execFile).toHaveBeenCalledWith(
+                'copilot',
+                ['-p', 'Review this code'],
+                expect.any(Object),
+                expect.any(Function)
+            );
+        });
+
+        it('should return null when both binaries not found (ENOENT)', async () => {
+            const err = new Error('spawn ENOENT');
             err.code = 'ENOENT';
             execFile.mockImplementation((cmd, args, opts, cb) => {
                 cb(err, '', '');
@@ -61,14 +86,16 @@ describe('copilot', () => {
 
         it('should use custom timeout when specified', async () => {
             execFile.mockImplementation((cmd, args, opts, cb) => {
-                cb(null, 'response', '');
+                if (cmd === 'gh') {
+                    cb(null, 'response', '');
+                }
             });
 
             await askCopilot('Test', { timeout: 5000 });
 
             expect(execFile).toHaveBeenCalledWith(
-                'copilot',
-                ['-p', 'Test'],
+                'gh',
+                ['copilot', '-p', 'Test'],
                 expect.objectContaining({ timeout: 5000 }),
                 expect.any(Function)
             );
@@ -85,16 +112,26 @@ describe('copilot', () => {
     });
 
     describe('isCopilotAvailable', () => {
-        it('should return true when copilot --version succeeds', async () => {
+        it('should return true when gh copilot --version succeeds', async () => {
             execFile.mockImplementation((cmd, args, opts, cb) => {
-                cb(null, 'copilot v1.0.0', '');
+                if (cmd === 'gh') cb(null, 'gh version 2.0.0', '');
             });
 
             const available = await isCopilotAvailable();
             expect(available).toBe(true);
         });
 
-        it('should return false when copilot --version fails', async () => {
+        it('should return true when gh fails but copilot succeeds', async () => {
+            execFile.mockImplementation((cmd, args, opts, cb) => {
+                if (cmd === 'gh') cb(new Error('not found'), '', '');
+                if (cmd === 'copilot') cb(null, 'copilot 1.0', '');
+            });
+
+            const available = await isCopilotAvailable();
+            expect(available).toBe(true);
+        });
+
+        it('should return false when both fail', async () => {
             execFile.mockImplementation((cmd, args, opts, cb) => {
                 cb(new Error('not found'), '', '');
             });

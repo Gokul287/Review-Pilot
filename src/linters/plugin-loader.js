@@ -72,14 +72,19 @@ export async function loadPlugins(repoRoot, pluginDir = '.reviewpilot-rules') {
                 const fileUrl = pathToFileURL(fullPath).href;
                 const mod = await import(fileUrl);
 
-                const PluginClass = mod.default || mod;
+                const PluginSpec = mod.default || mod;
+                let instance;
 
-                if (typeof PluginClass !== 'function') {
-                    console.warn(`  ⚠ Plugin ${file}: no default export or class found, skipping.`);
+                if (typeof PluginSpec === 'function') {
+                    // It's a class
+                    instance = new PluginSpec();
+                } else if (typeof PluginSpec === 'object' && PluginSpec !== null) {
+                    // It's a plain object implementation
+                    instance = PluginSpec;
+                } else {
+                    console.warn(`  ⚠ Plugin ${file}: export must be a class or object, skipping.`);
                     continue;
                 }
-
-                const instance = new PluginClass();
 
                 if (!validatePlugin(instance)) {
                     console.warn(`  ⚠ Plugin ${file}: invalid plugin interface, skipping.`);

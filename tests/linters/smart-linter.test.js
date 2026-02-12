@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { analyze } from '../../src/linters/smart-linter.js';
+import { vi } from 'vitest';
+
+vi.mock('../../src/utils/copilot.js', () => ({
+    isCopilotAvailable: vi.fn().mockResolvedValue(false),
+    askCopilot: vi.fn(),
+}));
 
 // Helper to create a mock FileChange with a hunk containing the given code lines
 function mockFile(file, lines) {

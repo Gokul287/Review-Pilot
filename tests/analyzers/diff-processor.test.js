@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { processDiff } from '../../src/analyzers/diff-processor.js';
+import { vi } from 'vitest';
+
+vi.mock('../../src/utils/copilot.js', () => ({
+    isCopilotAvailable: vi.fn().mockResolvedValue(false), // Default to false
+    askCopilot: vi.fn().mockResolvedValue(null),
+    askCopilotBatch: vi.fn().mockResolvedValue(new Map()),
+}));
 
 // Sample unified diff for a new file
 const NEW_FILE_DIFF = `diff --git a/src/auth/login.js b/src/auth/login.js
